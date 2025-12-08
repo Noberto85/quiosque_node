@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase';
 import { useAuth } from './stores/auth';
 import Login from './pages/Login';
 import Menu from './pages/Menu';
+import Home from './pages/Home';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import { User } from '@supabase/supabase-js';
@@ -73,9 +74,11 @@ export default function App() {
     <BrowserRouter>
       <Toaster position="top-center" richColors />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/login/:mesaId/:quiosqueId" element={<Login />} />
         <Route
-          path="/"
+          path="/menu"
           element={
             <ProtectedRoute>
               <Menu />
