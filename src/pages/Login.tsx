@@ -4,22 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { authService } from '@/lib/auth-service';
 import { useAuth } from '@/stores/auth';
 import { toast } from 'sonner';
 import { UtensilsCrossed } from 'lucide-react';
-import { get } from 'http';
+import { qrAuthService } from '@/lib/qr-auth-service';
+import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [mesaId, setMesaId] = useState('');
-  const [garcom, setGarcom] = useState('');
-  const [quiosque, setQuiosque] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
+  const [nome, setNome] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
   const [contextLoading, setContextLoading] = useState(false);
   const [context, setContext] = useState<any>(null);
@@ -31,28 +27,24 @@ export default function Login() {
 
 
   useEffect(() => {
-    debugger
     if (token) {
       setContextLoading(true);
-      fetch(`http://localhost:8081/api/v1/auth?token=${token}`)
-        .then((res) => {
-          debugger
-          if (!res.ok) throw new Error('Erro ao obter dados do QRCode');
-          return res.json();
-        })
+      qrAuthService
+        .getAuthContext(token as string)
         .then((data) => {
           setContext(data);
-          if (data?.token) {
-            try {
-              setQuiosque(data.quiosque);
-              localStorage.setItem('qrToken', data.token);
-            } catch { }
+          if (data) {
+            quiosqueStorage.setDataQuiosque(data);
           }
         })
-        .catch((error) => {
+        .catch((error: any) => {
           toast.error(error.message);
+          navigate('/erro');
         })
         .finally(() => setContextLoading(false));
+    } else {
+       toast.error("falha ao obter dados do QRCode");
+      navigate('/erro');
     }
   }, [token]);
 
@@ -63,6 +55,14 @@ export default function Login() {
     try {
       const user = await authService.signInWithPassword(email, password);
       login(authService.mapUser(user));
+      debugger
+      const token = await qrAuthService.getClientToken({
+        nome,
+        quiosqueId: context?.quiosqueId,
+        mesa: context?.mesa,
+        telefone,
+      });
+      debugger
       navigate('/menu');
     } catch (error: any) {
       toast.error(error.message);
@@ -70,34 +70,6 @@ export default function Login() {
     }
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      await authService.sendOtp(email);
-      setOtpSent(true);
-      toast.success('Código enviado para seu email!');
-      setLoading(false);
-    } catch (error: any) {
-      toast.error(error.message);
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const user = await authService.verifyOtpAndSetPassword(email, otp, password, username);
-      login(authService.mapUser(user));
-      navigate('/');
-    } catch (error: any) {
-      toast.error(error.message);
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
@@ -117,17 +89,41 @@ export default function Login() {
                 <span className="text-sm text-muted-foreground">Carregando...</span>
               )}
             </div>
-            <div  className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground sm:grid-cols-3">
-              <span>Quiosque: <span className="font-medium">{context?.quiosque ?? quiosque}</span></span>
+            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground sm:grid-cols-3">
+              <span>Quiosque: <span className="font-medium">{context?.quiosque ?? '-'} </span></span>
 
             </div>
             <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground sm:grid-cols-3">
-              <span>Mesa: <span className="font-medium">{context?.mesa ?? mesaId}</span></span>
+              <span>Mesa: <span className="font-medium">{context?.mesa ?? '-'} </span></span>
               <span>Garçom: <span className="font-medium">{context?.garcom ?? '-'}</span></span>
             </div>
           </div>}
           {
             <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-nome">Nome</Label>
+                <Input
+                  id="login-nome"
+                  type="text"
+                  placeholder="Seu nome"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  required
+                />
+              </div>
+
+               <div className="space-y-2">
+                <Label htmlFor="login-telefone">Telefone</Label>
+                <Input
+                  id="login-telefone"
+                  type="text"
+                  placeholder="(XX) XXXXX-XXXX"
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                  required
+                />
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email</Label>
                 <Input

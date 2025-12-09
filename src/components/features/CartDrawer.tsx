@@ -1,6 +1,7 @@
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/stores/cart';
+import { formatCurrencyBRL } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
 export function CartDrawer() {
@@ -53,7 +54,7 @@ export function CartDrawer() {
                     <div className="flex-1">
                       <h3 className="font-medium line-clamp-1">{item.name}</h3>
                       <p className="text-sm text-primary font-semibold">
-                        R$ {item.price.toFixed(2)}
+                        {formatCurrencyBRL(item.price)}
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <Button
@@ -91,7 +92,7 @@ export function CartDrawer() {
             <div className="border-t p-4">
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-primary">R$ {getTotal().toFixed(2)}</span>
+                <span className="text-primary">{formatCurrencyBRL(getTotal())}</span>
               </div>
               <Button
                 onClick={handleCheckout}

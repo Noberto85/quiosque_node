@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCart } from '@/stores/cart';
 import { useAuth } from '@/stores/auth';
 import { supabase } from '@/lib/supabase';
+import { formatCurrencyBRL } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
 
@@ -165,11 +166,11 @@ export default function Checkout() {
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-muted-foreground">
-                        {item.quantity}x R$ {item.price.toFixed(2)}
+                        {item.quantity}x {formatCurrencyBRL(item.price)}
                       </p>
                     </div>
                     <p className="font-medium">
-                      R$ {(item.price * item.quantity).toFixed(2)}
+                      {formatCurrencyBRL(item.price * item.quantity)}
                     </p>
                   </div>
                 ))}
@@ -177,16 +178,16 @@ export default function Checkout() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>R$ {getTotal().toFixed(2)}</span>
+                    <span>{formatCurrencyBRL(getTotal())}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Taxa de Entrega</span>
-                    <span>R$ 5.00</span>
+                    <span>{formatCurrencyBRL(5)}</span>
                   </div>
                   <div className="mt-4 flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-primary">
-                      R$ {(getTotal() + 5).toFixed(2)}
+                      {formatCurrencyBRL(getTotal() + 5)}
                     </span>
                   </div>
                 </div>

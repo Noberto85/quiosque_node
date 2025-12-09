@@ -9,6 +9,7 @@ import { useAuth } from '@/stores/auth';
 import { Order } from '@/types';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Package } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatCurrencyBRL } from '@/lib/utils';
 
 export default function Orders() {
   const { user } = useAuth();
@@ -80,7 +81,7 @@ export default function Orders() {
       <main className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/menu')}
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -131,7 +132,7 @@ export default function Orders() {
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-primary">
-                        R$ {order.total.toFixed(2)}
+                        {formatCurrencyBRL(order.total)}
                       </p>
                     </div>
                   </div>
@@ -150,7 +151,7 @@ export default function Orders() {
                               {item.quantity}x {item.name}
                             </span>
                             <span className="font-medium">
-                              R$ {(item.price * item.quantity).toFixed(2)}
+                              {formatCurrencyBRL(item.price * item.quantity)}
                             </span>
                           </div>
                         ))}

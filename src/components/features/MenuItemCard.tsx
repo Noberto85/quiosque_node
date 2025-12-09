@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MenuItem } from '@/types';
+import { formatCurrencyBRL } from '@/lib/utils';
 import { useCart } from '@/stores/cart';
 import { toast } from 'sonner';
 
@@ -32,7 +33,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-bold text-primary">
-          R$ {item.price.toFixed(2)}
+          {formatCurrencyBRL(item.price)}
         </p>
       </CardContent>
       <CardFooter>
