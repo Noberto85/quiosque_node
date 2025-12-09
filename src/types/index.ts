@@ -29,3 +29,9 @@ export interface Order {
   created_at: string;
   updated_at: string;
 }
+
+export interface MenuItemResponse {
+  content: MenuItem[];
+  totalPages: number;
+  totalElements: number;
+}

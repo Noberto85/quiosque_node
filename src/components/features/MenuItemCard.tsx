@@ -18,6 +18,14 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     toast.success(`${item.nome} adicionado ao carrinho!`);
   };
 
+  if (!item) {
+    return (
+      <div className="flex h-40 items-center justify-center rounded-lg border p-4 text-center text-muted-foreground">
+        Item não encontrado
+      </div>
+    );
+  }
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg animate-fade-in">
       <div className="aspect-video overflow-hidden">

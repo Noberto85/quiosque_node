@@ -47,14 +47,14 @@ export function CartDrawer() {
                     className="flex gap-4 rounded-lg border p-3"
                   >
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.imagem}
+                      alt={item.nome}
                       className="h-20 w-20 rounded-md object-cover"
                     />
                     <div className="flex-1">
-                      <h3 className="font-medium line-clamp-1">{item.name}</h3>
+                      <h3 className="font-medium line-clamp-1">{item.nome}</h3>
                       <p className="text-sm text-primary font-semibold">
-                        {formatCurrencyBRL(item.price)}
+                        {formatCurrencyBRL(item.preco)} 
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <Button
@@ -62,20 +62,20 @@ export function CartDrawer() {
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            updateQuantity(item.id, item.quantidade - 1)
                           }
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className="w-8 text-center font-medium">
-                          {item.quantity}
+                          {item.quantidade}
                         </span>
                         <Button
                           variant="outline"
                           size="icon"
                           className="h-7 w-7"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(item.id, item.quantidade + 1)
                           }
                         >
                           <Plus className="h-3 w-3" />

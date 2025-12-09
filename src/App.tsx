@@ -96,14 +96,12 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <Orders />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/orders" element={
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<Navigate to="/erro" replace />} />
       </Routes>
     </BrowserRouter>
   );

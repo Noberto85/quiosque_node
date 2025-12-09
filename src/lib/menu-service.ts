@@ -1,3 +1,6 @@
+import { MenuItemResponse } from "@/types";
+import { quiosqueStorage } from "./quiosque-storage";
+
 export type QrAuthContext = {
   token: string;
   mesa?: string | number;
@@ -15,30 +18,13 @@ export type QrAuthClient = {
   mesa: number;
 }
 
-export type QrAuthJwtClaims = {              
-  sub: string;              
-  nome: string;             
-  mesa: number;             
-  quiosque_id: string;      
-  Roles: string[];          
+export type QrAuthJwtClaims = {
+  sub: string;
+  nome: string;
+  mesa: number;
+  quiosque_id: string;
+  Roles: string[];
 };
-
-export function decodeJwt(token: string): QrAuthJwtClaims | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length < 2) return null;
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const json = decodeURIComponent(
-      atob(payload)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
 
 class MenuItemService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
@@ -56,8 +42,32 @@ class MenuItemService {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!res.ok) throw new Error('Erro ao obter token');
+    return res.json();
+  }
+
+  async getMenuListItem(quiosqueId: string, categoria: string): Promise<MenuItemResponse> {
+    const params = new URLSearchParams({
+      page: "0",
+      size: "10",
+      orderBy: "nome",
+      categoria: categoria
+    });
+
+    const token = quiosqueStorage.getToken();
+    const res = await fetch(
+      `http://localhost:8081/api/v1/cardapio/${quiosqueId}?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "accept": "*/*",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        }
+      }
+    );
+
+    if (!res.ok) throw new Error("Erro ao obter dados do QRCode");
     return res.json();
   }
 }

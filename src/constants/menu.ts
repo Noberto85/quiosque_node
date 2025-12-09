@@ -126,4 +126,4 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-export const CATEGORIES = ['Entradas', 'Pratos Principais', 'Bebidas', 'Sobremesas'];
+export const CATEGORIES = ['Entradas', 'Pratos Principais', 'Bebidas', 'Sobremesas','Outros'];

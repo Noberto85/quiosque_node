@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { AuthUser } from '@/types';
 
-interface AuthStore {
+interface   AuthStore {
   user: AuthUser | null;
   loading: boolean;
   login: (user: AuthUser) => void;

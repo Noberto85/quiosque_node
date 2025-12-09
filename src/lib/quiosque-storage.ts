@@ -1,8 +1,10 @@
+import { decodeJwt } from './jwt.utils';
 import type { QrAuthContext, QrAuthJwtClaims } from './qr-auth-service';
-import { decodeJwt } from './qr-auth-service';
+
 
 const KEY = 'quiosque_ref';
 const CLAIM = 'claim';
+const TOKEN = 'token';
 
 export const quiosqueStorage = {
   setDataQuiosque(data: QrAuthContext) {
@@ -12,16 +14,24 @@ export const quiosqueStorage = {
   },
   setClaim(token: string) {
     try {
+      localStorage.setItem(TOKEN, token);
       const claims = decodeJwt(token);
       if (claims) {
         localStorage.setItem(CLAIM, JSON.stringify(claims));
       }
     } catch { }
   },
-   getClaim(): QrAuthJwtClaims | null {
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(TOKEN);
+    } catch {
+      return null;
+    }
+  },
+   getClaim<T extends Record<string, any> = QrAuthJwtClaims>(): T | null {
     try {
       const raw = localStorage.getItem(CLAIM);
-      return raw ? JSON.parse(raw) : null;
+      return raw ? (JSON.parse(raw) as T) : null;
     } catch {
       return null;
     }
@@ -38,6 +48,7 @@ export const quiosqueStorage = {
     try {
       localStorage.removeItem(KEY);
       localStorage.removeItem(CLAIM);
+      localStorage.removeItem(TOKEN);
     } catch { }
   },
 };

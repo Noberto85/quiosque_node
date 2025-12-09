@@ -60,7 +60,6 @@ export default function Login() {
     try {
       const user = await authService.signInWithPassword(email, password);
       login(authService.mapUser(user));
-      debugger
       const token = await qrAuthService.getClientToken({
         nome,
         quiosqueId: context?.quiosqueId,
@@ -68,7 +67,7 @@ export default function Login() {
         telefone,
       });
       quiosqueStorage.setClaim(token.token);
-      debugger
+
       navigate('/menu');
     } catch (error: any) {
       toast.error(error.message);
