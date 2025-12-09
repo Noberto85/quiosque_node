@@ -31,25 +31,20 @@ export type QrAuthJwtClaims<
 > = JwtClaimsBase & T;
 
 
+import { httpJson } from '@/lib/http';
+
 class QrAuthService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
-    const res = await fetch(
-      `http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`
-    );
-    if (!res.ok) throw new Error('Erro ao obter dados do QRCode');
-    return res.json();
+    return httpJson(`http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`);
   }
   async getClientToken(cliente: QrAuthClient): Promise<QrAuthToken> {
-    const res = await fetch('http://localhost:8081/api/v1/cliente', {
+    return httpJson('http://localhost:8081/api/v1/cliente', {
       method: 'POST',
       body: JSON.stringify(cliente),
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    
-    if (!res.ok) throw new Error('Erro ao obter token');
-    return res.json();
   }
 }
 

@@ -44,7 +44,7 @@ export default function Login() {
         })
         .catch((error: any) => {
           toast.error(error.message);
-          navigate('/erro');
+          
         })
         .finally(() => setContextLoading(false));
     } else {

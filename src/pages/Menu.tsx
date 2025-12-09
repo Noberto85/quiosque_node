@@ -21,7 +21,7 @@ export default function Menu() {
     const quiosqueId = claim?.quiosque_id ?? '';
     setLoadingItems(true);
     menuItemService
-      .getMenuListItem(quiosqueId, selectedCategory || null)
+      .getMenuListItem(quiosqueId, selectedCategory)
       .then((resp: MenuItemResponse) => {
         if (Array.isArray(resp?.content) && resp.content.length > 0) {
           setItems(resp.content);

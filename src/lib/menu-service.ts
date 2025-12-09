@@ -26,25 +26,20 @@ export type QrAuthJwtClaims = {
   Roles: string[];
 };
 
+import { httpJson } from '@/lib/http';
+
 class MenuItemService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
-    const res = await fetch(
-      `http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`
-    );
-    if (!res.ok) throw new Error('Erro ao obter dados do QRCode');
-    return res.json();
+    return httpJson(`http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`);
   }
   async getClientToken(cliente: QrAuthClient): Promise<QrAuthToken> {
-    const res = await fetch('http://localhost:8081/api/v1/cliente', {
+    return httpJson('http://localhost:8081/api/v1/cliente', {
       method: 'POST',
       body: JSON.stringify(cliente),
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    if (!res.ok) throw new Error('Erro ao obter token');
-    return res.json();
   }
 
   async getMenuListItem(quiosqueId: string, categoria: string): Promise<MenuItemResponse> {
@@ -60,19 +55,13 @@ class MenuItemService {
 
 
     const token = quiosqueStorage.getToken();
-    const res = await fetch(
-      `http://localhost:8081/api/v1/cardapio/${quiosqueId}?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          "accept": "*/*",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {})
-        }
-      }
-    );
-
-    if (!res.ok) throw new Error("Erro ao obter dados do QRCode");
-    return res.json();
+    return httpJson(`http://localhost:8081/api/v1/cardapio/${quiosqueId}?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        accept: '*/*',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
   }
 }
 
