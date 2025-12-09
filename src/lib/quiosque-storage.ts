@@ -37,6 +37,7 @@ export const quiosqueStorage = {
   removeDataQuiosque() {
     try {
       localStorage.removeItem(KEY);
+      localStorage.removeItem(CLAIM);
     } catch { }
   },
 };

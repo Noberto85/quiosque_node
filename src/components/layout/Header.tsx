@@ -14,20 +14,22 @@ import { authService } from '@/lib/auth-service';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export function Header() {
   const { items, toggleCart } = useCart();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const itemCount = items.reduce((sum, item) => sum + item.quantidade, 0);
 
   const handleLogout = async () => {
     try {
+      quiosqueStorage.removeDataQuiosque();
       await authService.signOut();
       logout();
       toast.success('Logout realizado com sucesso!');
-      navigate('/login');
+      navigate('/');
     } catch (error: any) {
       toast.error(error.message);
     }

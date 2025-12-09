@@ -23,11 +23,11 @@ export const useCart = create<CartStore>((set, get) => ({
     if (existingItem) {
       set({
         items: items.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: i.quantidade + 1 } : i
         ),
       });
     } else {
-      set({ items: [...items, { ...item, quantity: 1 }] });
+      set({ items: [...items, { ...item, quantidade: 1 }] });
     }
   },
   
@@ -52,6 +52,6 @@ export const useCart = create<CartStore>((set, get) => ({
   toggleCart: () => set({ isOpen: !get().isOpen }),
   
   getTotal: () => {
-    return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+    return get().items.reduce((total, item) => total + item.preco * item.quantidade, 0);
   },
 }));

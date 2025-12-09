@@ -16,7 +16,7 @@ export default function ErrorPage() {
           <a href="/">
             <Button variant="outline">Voltar para Home</Button>
           </a>
-          <a href="/login">
+          <a href="/">
             <Button className="gradient-primary">Ir para Login</Button>
           </a>
         </div>
