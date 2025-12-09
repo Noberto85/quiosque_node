@@ -51,9 +51,13 @@ class MenuItemService {
     const params = new URLSearchParams({
       page: "0",
       size: "10",
-      orderBy: "nome",
-      categoria: categoria
+      orderBy: "nome"
     });
+
+    if (categoria !== null) {
+      params.append("categoria", categoria);
+    }
+
 
     const token = quiosqueStorage.getToken();
     const res = await fetch(

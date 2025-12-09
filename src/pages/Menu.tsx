@@ -10,6 +10,7 @@ import { menuItemService } from '@/lib/menu-service';
 export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
+  const [loadingItems, setLoadingItems] = useState<boolean>(false);
 
   const filteredItems = selectedCategory
     ? items.filter((item) => item.categoria === selectedCategory)
@@ -18,16 +19,21 @@ export default function Menu() {
   useEffect(() => {
     const claim = quiosqueStorage.getClaim();
     const quiosqueId = claim?.quiosque_id ?? '';
-    if (!quiosqueId) return;
+    setLoadingItems(true);
     menuItemService
-      .getMenuListItem(quiosqueId, selectedCategory || 'LANCHE')
+      .getMenuListItem(quiosqueId, selectedCategory || null)
       .then((resp: MenuItemResponse) => {
         if (Array.isArray(resp?.content) && resp.content.length > 0) {
           setItems(resp.content);
+        } else {
+          setItems([]);
         }
       })
       .catch(() => {
-       
+        setItems([]);
+      })
+      .finally(() => {
+        setLoadingItems(false);
       });
   }, [selectedCategory]);
 
@@ -52,7 +58,11 @@ export default function Menu() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredItems.length === 0 ? (
+          {loadingItems ? (
+            <div className="col-span-full flex items-center justify-center p-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            </div>
+          ) : filteredItems.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center rounded-lg border p-8 text-center">
               <p className="text-lg font-medium">Nenhum item encontrado</p>
               <p className="text-sm text-muted-foreground">Tente outra categoria</p>
