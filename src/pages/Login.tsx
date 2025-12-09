@@ -27,6 +27,7 @@ export default function Login() {
 
 
   useEffect(() => {
+   
     if (token) {
       setContextLoading(true);
       qrAuthService
@@ -62,6 +63,7 @@ export default function Login() {
         mesa: context?.mesa,
         telefone,
       });
+      quiosqueStorage.setClaim(token.token);
       debugger
       navigate('/menu');
     } catch (error: any) {

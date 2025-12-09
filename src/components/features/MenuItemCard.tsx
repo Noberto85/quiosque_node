@@ -15,25 +15,25 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
 
   const handleAddToCart = () => {
     addItem(item);
-    toast.success(`${item.name} adicionado ao carrinho!`);
+    toast.success(`${item.nome} adicionado ao carrinho!`);
   };
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg animate-fade-in">
       <div className="aspect-video overflow-hidden">
         <img
-          src={item.image}
-          alt={item.name}
+          src={item.imagem}
+          alt={item.nome}
           className="h-full w-full object-cover transition-transform hover:scale-105"
         />
       </div>
       <CardHeader>
-        <CardTitle className="line-clamp-1">{item.name}</CardTitle>
-        <CardDescription className="line-clamp-2">{item.description}</CardDescription>
+        <CardTitle className="line-clamp-1">{item.nome}</CardTitle>
+        <CardDescription className="line-clamp-2">{item.descricao}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-bold text-primary">
-          {formatCurrencyBRL(item.price)}
+          {formatCurrencyBRL(item.preco)}
         </p>
       </CardContent>
       <CardFooter>

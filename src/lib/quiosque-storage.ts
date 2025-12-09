@@ -1,4 +1,5 @@
 import type { QrAuthContext, QrAuthJwtClaims } from './qr-auth-service';
+import { decodeJwt } from './qr-auth-service';
 
 const KEY = 'quiosque_ref';
 const CLAIM = 'claim';
@@ -9,9 +10,12 @@ export const quiosqueStorage = {
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch { }
   },
-  setClaim(data: QrAuthJwtClaims) {
+  setClaim(token: string) {
     try {
-      localStorage.setItem(CLAIM, JSON.stringify(data));
+      const claims = decodeJwt(token);
+      if (claims) {
+        localStorage.setItem(CLAIM, JSON.stringify(claims));
+      }
     } catch { }
   },
    getClaim(): QrAuthJwtClaims | null {
@@ -36,4 +40,3 @@ export const quiosqueStorage = {
     } catch { }
   },
 };
-

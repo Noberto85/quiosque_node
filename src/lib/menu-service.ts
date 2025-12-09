@@ -40,7 +40,7 @@ export function decodeJwt(token: string): QrAuthJwtClaims | null {
   }
 }
 
-class QrAuthService {
+class MenuItemService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
     const res = await fetch(
       `http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`
@@ -62,4 +62,4 @@ class QrAuthService {
   }
 }
 
-export const qrAuthService = new QrAuthService();
+export const menuItemService = new MenuItemService();

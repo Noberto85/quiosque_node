@@ -164,13 +164,13 @@ export default function Checkout() {
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <div>
-                      <p className="font-medium">{item.name}</p>
+                      <p className="font-medium">{item.nome}</p>
                       <p className="text-muted-foreground">
-                        {item.quantity}x {formatCurrencyBRL(item.price)}
+                        {item.quantidade}x {formatCurrencyBRL(item.preco)}
                       </p>
                     </div>
                     <p className="font-medium">
-                      {formatCurrencyBRL(item.price * item.quantity)}
+                      {formatCurrencyBRL(item.preco * item.quantidade)}
                     </p>
                   </div>
                 ))}

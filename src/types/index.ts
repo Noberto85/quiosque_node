@@ -6,15 +6,16 @@ export interface AuthUser {
 
 export interface MenuItem {
   id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
+  nome: string;
+  descricao: string;
+  preco: number;
+  categoria: string;
+  imagem: string;
+  avaliacao?: number;
 }
 
 export interface CartItem extends MenuItem {
-  quantity: number;
+  quantidade: number;
 }
 
 export interface Order {

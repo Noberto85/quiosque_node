@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
 import { Header } from '@/components/layout/Header';
 import { CategoryFilter } from '@/components/features/CategoryFilter';
 import { MenuItemCard } from '@/components/features/MenuItemCard';
@@ -9,8 +9,13 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filteredItems = selectedCategory
-    ? MENU_ITEMS.filter((item) => item.category === selectedCategory)
+    ? MENU_ITEMS.filter((item) => item.categoria   === selectedCategory)
     : MENU_ITEMS;
+
+    useEffect(() => {
+    
+    }, []);
+    
 
   return (
     <div className="min-h-screen bg-background">
