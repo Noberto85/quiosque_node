@@ -11,8 +11,6 @@ import { qrAuthService } from '@/lib/qr-auth-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -125,29 +123,7 @@ export default function Login() {
                   required
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
-                <Input
-                  id="login-email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="login-password">Senha</Label>
-                <Input
-                  id="login-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+            
               <Button type="submit" className="w-full gradient-primary" disabled={loading}>
                 {loading ? 'Entrando...' : 'Entrar'}
               </Button>

@@ -7,15 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCart } from '@/stores/cart';
-import { useAuth } from '@/stores/auth';
-import { supabase } from '@/lib/supabase';
+import { useAuthCliente } from '@/stores/auth';
+import { ordersStorage } from '@/lib/orders-storage';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
 
 export default function Checkout() {
   const { items, getTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user } = useAuthCliente();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState('credit');
   const [address, setAddress] = useState('');
@@ -28,19 +28,20 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      const total = getTotal() + 5; // Adding delivery fee
-      
-      const { error } = await supabase.from('orders').insert({
-        user_id: user.id,
+      const total = getTotal() + 5;
+      const now = new Date().toISOString();
+      const order = {
+        id: String(Date.now()),
+        user_id: user.telefone,
         items,
         total,
         address,
         payment_method: paymentMethod,
         status: 'pending',
-      });
-
-      if (error) throw error;
-
+        created_at: now,
+        updated_at: now,
+      };
+      ordersStorage.add(order);
       clearCart();
       toast.success('Pedido realizado com sucesso! Tempo estimado: 30-40 minutos');
       navigate('/orders');
@@ -61,7 +62,7 @@ export default function Checkout() {
           <p className="mb-8 text-muted-foreground">
             Adicione itens ao carrinho antes de finalizar o pedido
           </p>
-          <Button onClick={() => navigate('/')}>
+          <Button onClick={() => navigate('/menu')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao Cardápio
           </Button>
@@ -77,7 +78,7 @@ export default function Checkout() {
       <main className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/menu')}
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

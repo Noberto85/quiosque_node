@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/sheet';
 import { useCart } from '@/stores/cart';
 import { useAuthCliente } from '@/stores/auth';
-import { authService } from '@/lib/auth-service';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -25,7 +24,7 @@ export function Header() {
 
   const handleLogout = async () => {
     try {
-      quiosqueStorage.removeDataQuiosque()
+      quiosqueStorage.removeDataQuiosque();
       logout();
       toast.success('Logout realizado com sucesso!');
       navigate('/');

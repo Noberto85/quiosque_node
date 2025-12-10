@@ -30,7 +30,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     <Card className="overflow-hidden transition-all hover:shadow-lg animate-fade-in">
       <div className="aspect-video overflow-hidden">
         <img
-          src={item.imagem}
+          src="https://bebakiro.com/cdn/shop/articles/bog-maca.jpg?v=1652211180"
           alt={item.nome}
           className="h-full w-full object-cover transition-transform hover:scale-105"
         />

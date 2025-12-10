@@ -47,7 +47,7 @@ export function CartDrawer() {
                     className="flex gap-4 rounded-lg border p-3"
                   >
                     <img
-                      src={item.imagem}
+                      src="https://bebakiro.com/cdn/shop/articles/bog-maca.jpg?v=1652211180"
                       alt={item.nome}
                       className="h-20 w-20 rounded-md object-cover"
                     />

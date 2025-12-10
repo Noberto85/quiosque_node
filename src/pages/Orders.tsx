@@ -4,15 +4,15 @@ import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/stores/auth';
+import { useAuthCliente } from '@/stores/auth';
 import { Order } from '@/types';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrencyBRL } from '@/lib/utils';
+import { ordersStorage } from '@/lib/orders-storage';
 
 export default function Orders() {
-  const { user } = useAuth();
+  const { user } = useAuthCliente();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,18 +23,11 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     if (!user) return;
-
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrders(data || []);
+      const all = ordersStorage.getAll();
+      const mine = all.filter((o) => o.user_id === user.telefone);
+      setOrders(mine);
     } catch (error: any) {
-      console.error('Error fetching orders:', error);
       toast.error('Erro ao carregar pedidos');
     } finally {
       setLoading(false);
@@ -103,9 +96,9 @@ export default function Orders() {
               <p className="mb-6 text-muted-foreground">
                 Faça seu primeiro pedido e ele aparecerá aqui
               </p>
-              <Button onClick={() => navigate('/')} className="gradient-primary">
-                Ver Cardápio
-              </Button>
+          <Button onClick={() => navigate('/menu')} className="gradient-primary">
+            Ver Cardápio
+          </Button>
             </CardContent>
           </Card>
         ) : (

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { AuthCliente, AuthUser } from '@/types';
 
-interface   AuthStore {
+interface AuthStore {
   user: AuthUser | null;
   loading: boolean;
   login: (user: AuthUser) => void;
@@ -17,7 +17,7 @@ export const useAuth = create<AuthStore>((set) => ({
   setLoading: (loading) => set({ loading }),
 }));
 
-interface   AuthClienteStore {
+interface AuthClienteStore {
   user: AuthCliente | null;
   loading: boolean;
   login: (user: AuthCliente) => void;
