@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { AuthUser } from '@/types';
+import { AuthCliente, AuthUser } from '@/types';
 import { User } from '@supabase/supabase-js';
 
 class AuthService {
@@ -8,6 +8,14 @@ class AuthService {
       id: user.id,
       email: user.email!,
       username: user.user_metadata?.username || user.email!.split('@')[0],
+    };
+  }
+
+  mapCliente(telefone: string, username: string): AuthCliente {
+    return {
+
+      telefone: telefone || '',
+      username: username || '',
     };
   }
 

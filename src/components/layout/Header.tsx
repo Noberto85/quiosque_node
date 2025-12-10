@@ -9,7 +9,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCart } from '@/stores/cart';
-import { useAuth } from '@/stores/auth';
+import { useAuthCliente } from '@/stores/auth';
 import { authService } from '@/lib/auth-service';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -18,15 +18,14 @@ import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export function Header() {
   const { items, toggleCart } = useCart();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthCliente();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const itemCount = items.reduce((sum, item) => sum + item.quantidade, 0);
 
   const handleLogout = async () => {
     try {
-      quiosqueStorage.removeDataQuiosque();
-      await authService.signOut();
+      quiosqueStorage.removeDataQuiosque()
       logout();
       toast.success('Logout realizado com sucesso!');
       navigate('/');
@@ -83,7 +82,7 @@ export function Header() {
                   </div>
                   <div>
                     <p className="font-medium">{user?.username}</p>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm text-muted-foreground">{user?.telefone}</p>
                   </div>
                 </div>
 

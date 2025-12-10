@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { authService } from '@/lib/auth-service';
-import { useAuth } from '@/stores/auth';
+import { useAuthCliente } from '@/stores/auth';
 import { toast } from 'sonner';
 import { UtensilsCrossed } from 'lucide-react';
 import { qrAuthService } from '@/lib/qr-auth-service';
@@ -19,7 +18,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [contextLoading, setContextLoading] = useState(false);
   const [context, setContext] = useState<any>(null);
-  const { login } = useAuth();
+  const { login } = useAuthCliente();
   const navigate = useNavigate();
   const params = useParams();
   const [searchParams] = useSearchParams();
@@ -58,8 +57,6 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const user = await authService.signInWithPassword(email, password);
-      login(authService.mapUser(user));
       const token = await qrAuthService.getClientToken({
         nome,
         quiosqueId: context?.quiosqueId,
@@ -67,7 +64,7 @@ export default function Login() {
         telefone,
       });
       quiosqueStorage.setClaim(token.token);
-
+      login({ username: nome, telefone });
       navigate('/menu');
     } catch (error: any) {
       toast.error(error.message);

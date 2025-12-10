@@ -17,6 +17,7 @@ export default function Menu() {
     : items;
 
   useEffect(() => {
+    debugger
     const claim = quiosqueStorage.getClaim();
     const quiosqueId = claim?.quiosque_id ?? '';
     setLoadingItems(true);

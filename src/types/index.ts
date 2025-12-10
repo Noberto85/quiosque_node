@@ -4,6 +4,11 @@ export interface AuthUser {
   username: string;
 }
 
+export interface AuthCliente {
+  telefone: string;
+  username: string;
+}
+
 export interface MenuItem {
   id: string;
   nome: string;
