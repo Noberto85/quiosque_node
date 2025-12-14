@@ -6,6 +6,7 @@ import { CartDrawer } from '@/components/features/CartDrawer';
 import { MenuItemResponse, MenuItem } from '@/types';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
 import { menuItemService } from '@/lib/menu-service';
+import { API_BASE_URL } from '@/lib/env';
 
 export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -17,6 +18,7 @@ export default function Menu() {
     : items;
 
   useEffect(() => {
+    console.log(API_BASE_URL)
     debugger
     const claim = quiosqueStorage.getClaim();
     const quiosqueId = claim?.quiosque_id ?? '';
