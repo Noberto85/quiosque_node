@@ -18,6 +18,7 @@ export default function Menu() {
     : items;
 
   useEffect(() => {
+    alert(API_BASE_URL)
     console.log(API_BASE_URL)
     debugger
     const claim = quiosqueStorage.getClaim();
