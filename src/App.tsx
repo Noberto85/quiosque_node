@@ -52,9 +52,9 @@ export default function App() {
         <Route
           path="/menu"
           element={
-            <ProtectedRoute>
+         
               <Menu />
-            </ProtectedRoute>
+           
           }
         />
         <Route
