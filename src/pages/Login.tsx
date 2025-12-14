@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { UtensilsCrossed } from 'lucide-react';
 import { qrAuthService } from '@/lib/qr-auth-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
+import { API_BASE_URL } from '@/lib/env';
 
 export default function Login() {
   const [nome, setNome] = useState('');
@@ -26,6 +27,8 @@ export default function Login() {
   useEffect(() => {
     debugger
     const claim = quiosqueStorage.getClaim();
+       alert(API_BASE_URL)
+    console.log(API_BASE_URL)
     
     if (token) {
       setContextLoading(true);
