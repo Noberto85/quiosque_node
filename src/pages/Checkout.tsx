@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCart } from '@/stores/cart';
 import { useAuthCliente } from '@/stores/auth';
 import { ordersStorage } from '@/lib/orders-storage';
+import { orderService } from '@/lib/order-service';
+import { quiosqueStorage } from '@/lib/quiosque-storage';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
@@ -20,6 +22,11 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('credit');
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cpfPix, setCpfPix] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +35,40 @@ export default function Checkout() {
     setLoading(true);
 
     try {
+      if (paymentMethod === 'pix' && !cpfPix.trim()) {
+        toast.error('Informe o CPF para pagamento via PIX');
+        setLoading(false);
+        return;
+      }
+      if (
+        paymentMethod === 'credit' &&
+        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim())
+      ) {
+        toast.error('Informe todos os dados do cartão');
+        setLoading(false);
+        return;
+      }
       const total = getTotal() + 5;
+      const ctx = quiosqueStorage.getDataQuiosque();
+      await orderService.createOrder({
+        quiosqueId: String(ctx?.quiosqueId ?? ''),
+        mesa: Number(ctx?.mesa ?? 0),
+        cliente: { nome: user.username, telefone: user.telefone },
+        address,
+        items: items.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade, preco: i.preco })),
+        payment: {
+          method: paymentMethod as any,
+          pixCpf: paymentMethod === 'pix' ? cpfPix : undefined,
+          card:
+            paymentMethod === 'credit'
+              ? { number: cardNumber, name: cardName, expiry: cardExpiry, cvv: cardCvv }
+              : undefined,
+        },
+        total,
+      });
+
       const now = new Date().toISOString();
-      const order = {
+      ordersStorage.add({
         id: String(Date.now()),
         user_id: user.telefone,
         items,
@@ -40,8 +78,7 @@ export default function Checkout() {
         status: 'pending',
         created_at: now,
         updated_at: now,
-      };
-      ordersStorage.add(order);
+      });
       clearCart();
       toast.success('Pedido realizado com sucesso! Tempo estimado: 30-40 minutos');
       navigate('/orders');
@@ -109,39 +146,97 @@ export default function Checkout() {
 
                   <div className="space-y-2">
                     <Label>Método de Pagamento</Label>
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <div className="flex items-center space-x-2 rounded-lg border p-4">
-                        <RadioGroupItem value="credit" id="credit" />
-                        <Label htmlFor="credit" className="flex flex-1 cursor-pointer items-center gap-2">
-                          <CreditCard className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Cartão de Crédito</p>
-                            <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
-                          </div>
-                        </Label>
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                    <RadioGroupItem value="credit" id="credit" />
+                    <Label htmlFor="credit" className="flex flex-1 cursor-pointer items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">Cartão de Crédito</p>
+                        <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-lg border p-4">
-                        <RadioGroupItem value="cash" id="cash" />
-                        <Label htmlFor="cash" className="flex flex-1 cursor-pointer items-center gap-2">
-                          <Wallet className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">Dinheiro</p>
-                            <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
-                          </div>
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-lg border p-4">
-                        <RadioGroupItem value="pix" id="pix" />
-                        <Label htmlFor="pix" className="flex flex-1 cursor-pointer items-center gap-2">
-                          <CreditCard className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium">PIX</p>
-                            <p className="text-sm text-muted-foreground">Pagamento online</p>
-                          </div>
-                        </Label>
-                      </div>
-                    </RadioGroup>
+                    </Label>
                   </div>
+                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                    <RadioGroupItem value="cash" id="cash" />
+                    <Label htmlFor="cash" className="flex flex-1 cursor-pointer items-center gap-2">
+                      <Wallet className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">Dinheiro</p>
+                        <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
+                      </div>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                    <RadioGroupItem value="pix" id="pix" />
+                    <Label htmlFor="pix" className="flex flex-1 cursor-pointer items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">PIX</p>
+                        <p className="text-sm text-muted-foreground">Pagamento online</p>
+                      </div>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {paymentMethod === 'pix' && (
+                <div className="space-y-2">
+                  <Label htmlFor="cpf-pix">CPF</Label>
+                  <Input
+                    id="cpf-pix"
+                    placeholder="000.000.000-00"
+                    value={cpfPix}
+                    onChange={(e) => setCpfPix(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+
+              {paymentMethod === 'credit' && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="card-number">Número do Cartão</Label>
+                    <Input
+                      id="card-number"
+                      placeholder="0000 0000 0000 0000"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="card-name">Nome no Cartão</Label>
+                    <Input
+                      id="card-name"
+                      placeholder="Como está no cartão"
+                      value={cardName}
+                      onChange={(e) => setCardName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="card-expiry">Validade (MM/AA)</Label>
+                    <Input
+                      id="card-expiry"
+                      placeholder="MM/AA"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="card-cvv">CVV</Label>
+                    <Input
+                      id="card-cvv"
+                      placeholder="123"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
 
                   <Button
                     type="submit"

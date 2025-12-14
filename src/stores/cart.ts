@@ -23,7 +23,7 @@ export const useCart = create<CartStore>((set, get) => ({
     if (existingItem) {
       set({
         items: items.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantidade + 1 } : i
+          i.id === item.id ? { ...i, quantidade: i.quantidade + 1 } : i
         ),
       });
     } else {
@@ -41,7 +41,7 @@ export const useCart = create<CartStore>((set, get) => ({
     } else {
       set({
         items: get().items.map((i) =>
-          i.id === id ? { ...i, quantity } : i
+          i.id === id ? { ...i, quantidade: quantity } : i
         ),
       });
     }

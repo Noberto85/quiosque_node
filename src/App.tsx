@@ -8,14 +8,7 @@ import Home from './pages/Home';
 import ErrorPage from './pages/Error';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
-import { AuthCliente } from './types';
-
-function mapClienteUser(telefone: string, nome: string): AuthCliente {
-  return {
-    telefone,
-    username: nome,
-  };
-}
+import { quiosqueStorage } from './lib/quiosque-storage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthCliente();
@@ -26,6 +19,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
+  }
+debugger
+  const claim = quiosqueStorage.getClaim();
+  if (!claim) {
+    return <Navigate to="/menu"  />;
   }
 
   if (!user) {

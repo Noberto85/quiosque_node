@@ -3,6 +3,7 @@ export type QrAuthContext = {
   mesa?: string | number;
   quiosque?: string;
   garcom?: string;
+  quiosqueId: string;
 };
 
 export type QrAuthToken = {
@@ -32,13 +33,14 @@ export type QrAuthJwtClaims<
 
 
 import { httpJson } from '@/lib/http';
+import { API_BASE_URL } from '@/lib/env';
 
 class QrAuthService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
-    return httpJson(`http://localhost:8081/api/v1/auth?token=${encodeURIComponent(token)}`);
+    return httpJson(`${API_BASE_URL}/api/v1/auth?token=${encodeURIComponent(token)}`);
   }
   async getClientToken(cliente: QrAuthClient): Promise<QrAuthToken> {
-    return httpJson('http://localhost:8081/api/v1/cliente', {
+    return httpJson(`${API_BASE_URL}/api/v1/cliente`, {
       method: 'POST',
       body: JSON.stringify(cliente),
       headers: {

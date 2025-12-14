@@ -26,9 +26,7 @@ export default function Login() {
   useEffect(() => {
     debugger
     const claim = quiosqueStorage.getClaim();
-    if (claim) {
-      navigate('/menu');
-    }
+    
     if (token) {
       setContextLoading(true);
       qrAuthService
@@ -42,10 +40,12 @@ export default function Login() {
         .catch((error: any) => {
           toast.error(error.message);
           
+          
         })
         .finally(() => setContextLoading(false));
     } else {
        toast.error("Token inválido");
+       quiosqueStorage.removeDataQuiosque();
       navigate('/');
     }
   }, [token]);
