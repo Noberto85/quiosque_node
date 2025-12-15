@@ -27,10 +27,9 @@ export default function Login() {
   useEffect(() => {
     debugger
     const claim = quiosqueStorage.getClaim();
-       alert(API_BASE_URL)
-    console.log(API_BASE_URL)
+       
     
-    if (token) {
+    /* if (token) {
       setContextLoading(true);
       qrAuthService
         .getAuthContext(token as string)
@@ -50,7 +49,7 @@ export default function Login() {
        toast.error("Token inválido >>" + API_BASE_URL);
        quiosqueStorage.removeDataQuiosque();
       navigate('/');
-    }
+    } */
   }, [token]);
 
   const handleLogin = async (e: React.FormEvent) => {
