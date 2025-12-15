@@ -19,18 +19,14 @@ export default function Login() {
   const [context, setContext] = useState<any>(null);
   const { login } = useAuthCliente();
   const navigate = useNavigate();
-  const params = useParams();
-  const [searchParams] = useSearchParams();
-   const { token } = useParams();
-
+  const { token } = useParams();
 
 
   useEffect(() => {
     debugger
     const claim = quiosqueStorage.getClaim();
-       alert(token)
-    
-    /* if (token) {
+       
+    if (token) {
       setContextLoading(true);
       qrAuthService
         .getAuthContext(token as string)
@@ -50,7 +46,7 @@ export default function Login() {
        toast.error("Token inválido >>" + API_BASE_URL);
        quiosqueStorage.removeDataQuiosque();
       navigate('/');
-    } */
+    }
   }, [token]);
 
   const handleLogin = async (e: React.FormEvent) => {
