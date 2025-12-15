@@ -21,13 +21,14 @@ export default function Login() {
   const navigate = useNavigate();
   const params = useParams();
   const [searchParams] = useSearchParams();
-  const token = params.token ?? searchParams.get('me') ?? undefined;
+   const { token } = useParams();
+
 
 
   useEffect(() => {
     debugger
     const claim = quiosqueStorage.getClaim();
-       
+       alert(token)
     
     /* if (token) {
       setContextLoading(true);
