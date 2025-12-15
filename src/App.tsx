@@ -47,8 +47,6 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/erro" element={<ErrorPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/login/:token" element={<Login />} />
-        <Route path="/login/:mesaId/:quiosqueId" element={<Login />} />
         <Route
           path="/menu"
           element={
