@@ -47,7 +47,7 @@ export default function Login() {
         })
         .finally(() => setContextLoading(false));
     } else {
-       toast.error("Token inválido");
+       toast.error("Token inválido >>" + API_BASE_URL);
        quiosqueStorage.removeDataQuiosque();
       navigate('/');
     }
