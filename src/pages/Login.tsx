@@ -10,6 +10,7 @@ import { UtensilsCrossed } from 'lucide-react';
 import { qrAuthService } from '@/lib/qr-auth-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
 import { API_BASE_URL } from '@/lib/env';
+import { formatPhoneBR, onlyDigits } from '@/lib/utils';
 
 export default function Login() {
   const [nome, setNome] = useState('');
@@ -37,6 +38,7 @@ export default function Login() {
           }
         })
         .catch((error: any) => {
+          debugger
           toast.error(error.message);
           
           
@@ -54,14 +56,17 @@ export default function Login() {
     setLoading(true);
 
     try {
+      debugger
       const token = await qrAuthService.getClientToken({
         nome,
         quiosqueId: context?.quiosqueId,
         mesa: context?.mesa,
-        telefone,
+        telefone: onlyDigits(telefone),
       });
+
+      debugger
       quiosqueStorage.setClaim(token.token);
-      login({ username: nome, telefone });
+      login({ username: nome, telefone: onlyDigits(telefone) });
       navigate('/menu');
     } catch (error: any) {
       toast.error(error.message);
@@ -118,7 +123,9 @@ export default function Login() {
                   type="text"
                   placeholder="(XX) XXXXX-XXXX"
                   value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
+                  onChange={(e) => setTelefone(formatPhoneBR(e.target.value))}
+                  inputMode="numeric"
+                  maxLength={15}
                   required
                 />
               </div>

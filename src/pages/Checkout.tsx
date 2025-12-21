@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import { quiosqueStorage } from '@/lib/quiosque-storage';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
+import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react';
+import { MERCADO_PAGO_PUBLIC_KEY } from '@/lib/env';
 
 export default function Checkout() {
   const { items, getTotal, clearCart } = useCart();
@@ -27,53 +29,67 @@ export default function Checkout() {
   const [cardName, setCardName] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
+  const [cardCpf, setCardCpf] = useState('');
+  
+  useEffect(() => {
+    if (MERCADO_PAGO_PUBLIC_KEY) {
+      initMercadoPago(MERCADO_PAGO_PUBLIC_KEY, { locale: 'pt-BR' });
+    }
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    
-    setLoading(true);
-
+  const handleOrderSuccess = async (paymentData?: any) => {
     try {
-      if (paymentMethod === 'pix' && !cpfPix.trim()) {
-        toast.error('Informe o CPF para pagamento via PIX');
-        setLoading(false);
-        return;
-      }
       if (
         paymentMethod === 'credit' &&
-        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim())
+        !MERCADO_PAGO_PUBLIC_KEY &&
+        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardCpf.trim())
       ) {
         toast.error('Informe todos os dados do cartão');
-        setLoading(false);
         return;
       }
+
       const total = getTotal() + 5;
       const ctx = quiosqueStorage.getDataQuiosque();
-      await orderService.createOrder({
+      
+      const payload: any = {
         quiosqueId: String(ctx?.quiosqueId ?? ''),
         mesa: Number(ctx?.mesa ?? 0),
-        cliente: { nome: user.username, telefone: user.telefone },
-        address,
-        items: items.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade, preco: i.preco })),
-        payment: {
-          method: paymentMethod as any,
+        clienteId: user?.telefone || '',
+        items: items.map((i) => ({ id: i.id, quantidade: i.quantidade })),
+        pagamento: {
+          metodo: paymentMethod as any,
           pixCpf: paymentMethod === 'pix' ? cpfPix : undefined,
-          card:
-            paymentMethod === 'credit'
-              ? { number: cardNumber, name: cardName, expiry: cardExpiry, cvv: cardCvv }
-              : undefined,
+          cartao: paymentMethod === 'credit' ? (
+             paymentData ? {
+                token: paymentData.token,
+                issuerId: paymentData.issuer_id,
+                paymentMethodId: paymentData.payment_method_id,
+                installments: paymentData.installments,
+                identification: paymentData.payer.identification,
+                email: paymentData.payer.email,
+             } : {
+                numero: cardNumber,
+                nome: cardName,
+                expiracao: cardExpiry,
+                cvv: cardCvv,
+                identification: {
+                  type: 'CPF',
+                  number: cardCpf
+                }
+             }
+          ) : undefined,
         },
         total,
-      });
+      };
+
+      await orderService.createOrder(payload);
 
       const now = new Date().toISOString();
       ordersStorage.add({
         id: String(Date.now()),
-        user_id: user.telefone,
+        user_id: user?.telefone || '',
         items,
         total,
-        address,
         payment_method: paymentMethod,
         status: 'pending',
         created_at: now,
@@ -88,6 +104,43 @@ export default function Checkout() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    
+    setLoading(true);
+
+    if (paymentMethod === 'pix' && !cpfPix.trim()) {
+      toast.error('Informe o CPF para pagamento via PIX');
+      setLoading(false);
+      return;
+    }
+
+    // For credit with Mercado Pago, the CardPayment brick handles submission.
+    // If we are using manual fields (fallback), we handle it here.
+    if (paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY) {
+        await handleOrderSuccess();
+    } else if (paymentMethod !== 'credit') {
+       await handleOrderSuccess();
+    }
+  };
+
+  const onCardPaymentSubmit = async (formData: any) => {
+    if (!address.trim()) {
+       toast.error('Informe o endereço de entrega antes de pagar.');
+       return Promise.reject(); 
+    }
+    return new Promise<void>((resolve, reject) => {
+      setLoading(true);
+      handleOrderSuccess(formData)
+        .then(() => resolve())
+        .catch(() => {
+          setLoading(false);
+          reject();
+        });
+    });
   };
 
   if (items.length === 0) {
@@ -133,17 +186,6 @@ export default function Checkout() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Endereço de Entrega</Label>
-                    <Input
-                      id="address"
-                      placeholder="Rua, número, complemento, bairro"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      required
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <Label>Método de Pagamento</Label>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
@@ -193,7 +235,21 @@ export default function Checkout() {
                 </div>
               )}
 
-              {paymentMethod === 'credit' && (
+              {paymentMethod === 'credit' && MERCADO_PAGO_PUBLIC_KEY && (
+                <div className="pt-4">
+                  <CardPayment
+                    initialization={{ amount: getTotal() + 5 }}
+                    onSubmit={onCardPaymentSubmit}
+                    customization={{
+                      paymentMethods: {
+                        maxInstallments: 12,
+                      },
+                    }}
+                  />
+                </div>
+              )}
+
+              {paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="card-number">Número do Cartão</Label>
@@ -212,6 +268,16 @@ export default function Checkout() {
                       placeholder="Como está no cartão"
                       value={cardName}
                       onChange={(e) => setCardName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="card-cpf">CPF do Titular</Label>
+                    <Input
+                      id="card-cpf"
+                      placeholder="000.000.000-00"
+                      value={cardCpf}
+                      onChange={(e) => setCardCpf(e.target.value)}
                       required
                     />
                   </div>
@@ -238,14 +304,16 @@ export default function Checkout() {
                 </div>
               )}
 
-                  <Button
-                    type="submit"
-                    className="w-full gradient-primary"
-                    size="lg"
-                    disabled={loading}
-                  >
-                    {loading ? 'Processando...' : 'Confirmar Pedido'}
-                  </Button>
+              {((paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY) || paymentMethod !== 'credit') && (
+                <Button
+                  type="submit"
+                  className="w-full gradient-primary"
+                  size="lg"
+                  disabled={loading}
+                >
+                  {loading ? 'Processando...' : 'Confirmar Pedido'}
+                </Button>
+              )}
                 </form>
               </CardContent>
             </Card>

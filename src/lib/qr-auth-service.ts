@@ -25,7 +25,8 @@ export type JwtClaimsBase = {
 export type QrAuthJwtClaims<
   T extends Record<string, any> = {
     nome?: string;
-    mesa?: number;
+    numeroMesa?: number;
+    mesaId?: number;
     quiosque_id?: string;
     Roles?: string[];
   }

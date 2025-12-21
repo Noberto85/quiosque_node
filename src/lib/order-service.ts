@@ -4,29 +4,34 @@ import { API_BASE_URL } from '@/lib/env';
 
 export type OrderItemPayload = {
   id: string;
-  nome: string;
   quantidade: number;
-  preco: number;
 };
 
 export type PaymentPayload = {
-  method: 'credit' | 'cash' | 'pix';
+  metodo: 'credit' | 'cash' | 'pix';
   pixCpf?: string;
-  card?: {
-    number: string;
-    name: string;
-    expiry: string;
-    cvv: string;
+  cartao?: {
+    numero?: string;
+    nome?: string;
+    expiracao?: string;
+    cvv?: string;
+    token?: string;
+    issuerId?: string;
+    paymentMethodId?: string;
+    installments?: number;
+    identification?: {
+      type: string;
+      number: string;
+    };
   };
 };
 
 export type CreateOrderPayload = {
   quiosqueId: string;
   mesa: number;
-  cliente: { nome: string; telefone: string };
-  address: string;
+  clienteId: string;
   items: OrderItemPayload[];
-  payment: PaymentPayload;
+  pagamento: PaymentPayload;
   total: number;
 };
 

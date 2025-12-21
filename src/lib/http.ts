@@ -20,7 +20,6 @@ function handleErrorStatus(status: number) {
 export async function httpFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const res = await fetch(input, init);
   if (!res.ok) {
-    debugger
     handleErrorStatus(res.status);
     throw new Error('Erro na requisição');
   }
@@ -29,6 +28,7 @@ export async function httpFetch(input: RequestInfo | URL, init?: RequestInit): P
 
 export async function httpJson<T = any>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const res = await httpFetch(input, init);
-  return res.json();
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 

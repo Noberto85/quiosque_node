@@ -28,7 +28,6 @@ export interface Order {
   user_id: string;
   items: CartItem[];
   total: number;
-  address: string;
   payment_method: string;
   status: string;
   created_at: string;
