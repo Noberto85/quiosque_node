@@ -87,11 +87,13 @@ export default function Checkout() {
         // Tenta extrair dados do PIX da resposta ou usa mock para demonstração
         const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
         // Mock de QR Code (exemplo estático) caso o backend ainda não retorne
-        const pixCode = response.point_of_interaction.transaction_data.qr_code;
-        const totalMount = response.transaction_amount;
+        const pixCode = response.qrCode;
+        const totalMount = response.valor;
         
         navigate('/payment/pix', { 
           state: { 
+            id: response.id,
+            expirationDate: response.dateOfExpiration,
             qrCode: pixData.qrCode || pixCode, 
             copyPasteCode: pixData.copyPasteCode || pixCode,
             totalMount 

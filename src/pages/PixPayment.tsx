@@ -2,17 +2,41 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/layout/Header';
-import { ArrowLeft, Copy, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Copy, CheckCircle, Clock } from 'lucide-react';
 import QRCode from 'react-qr-code';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { formatCurrencyBRL } from '@/lib/utils';
 
 export default function PixPayment() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { qrCode, totalMount, copyPasteCode } = location.state || {};
+  const { qrCode, totalMount, copyPasteCode, expirationDate } = location.state || {};
   const [copied, setCopied] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string>('');
+  const [expired, setExpired] = useState(false);
+
+  useEffect(() => {
+    debugger
+    const expiryTime =  new Date(expirationDate).getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = expiryTime - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setExpired(true);
+        setTimeLeft('EXPIRADO');
+      } else {
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expirationDate]);
 
   // Fallback or validation
   if (!qrCode && !copyPasteCode) {
@@ -60,8 +84,26 @@ export default function PixPayment() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 flex flex-col items-center">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <QRCode value={qrCode || copyPasteCode} size={200} />
+            <div className="bg-white p-4 rounded-lg shadow-sm relative">
+              <QRCode 
+                value={qrCode || copyPasteCode} 
+                size={200} 
+                style={{ opacity: expired ? 0.2 : 1 }}
+              />
+              {expired && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-red-600 font-bold text-xl transform -rotate-12 border-2 border-red-600 px-4 py-1 rounded">
+                    EXPIRADO
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Clock className={`h-4 w-4 ${expired ? 'text-red-500' : 'text-orange-500'}`} />
+              <span className={expired ? 'text-red-500' : 'text-orange-500'}>
+                Expira em: {timeLeft}
+              </span>
             </div>
 
             <div className="text-center">
