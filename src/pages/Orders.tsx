@@ -154,7 +154,7 @@ export default function Orders() {
                     <div className="flex flex-col gap-2 border-t pt-4 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                        {order.address}
+                       
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <CreditCard className="h-4 w-4" />

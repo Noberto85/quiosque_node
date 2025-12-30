@@ -7,6 +7,7 @@ import Menu from './pages/Menu';
 import Home from './pages/Home';
 import ErrorPage from './pages/Error';
 import Checkout from './pages/Checkout';
+import PixPayment from './pages/PixPayment';
 import Orders from './pages/Orders';
 import { quiosqueStorage } from './lib/quiosque-storage';
 
@@ -26,9 +27,9 @@ debugger
     return <Navigate to="/menu"  />;
   }
 
-  if (!user) {
+  /* if (!user) {
     return <Navigate to="/login" replace />;
-  }
+  } */
 
   return <>{children}</>;
 }
@@ -60,6 +61,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Checkout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/pix"
+          element={
+            <ProtectedRoute>
+              <PixPayment />
             </ProtectedRoute>
           }
         />

@@ -14,6 +14,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
   const { addItem } = useCart();
 
   const handleAddToCart = () => {
+    debugger
     addItem(item);
     toast.success(`${item.nome} adicionado ao carrinho!`);
   };

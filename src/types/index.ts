@@ -39,3 +39,8 @@ export interface MenuItemResponse {
   totalPages: number;
   totalElements: number;
 }
+
+export interface CategoriaResponse {
+  id: string;
+  descricao: string;
+}

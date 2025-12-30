@@ -1,4 +1,4 @@
-import { MenuItemResponse } from "@/types";
+import { MenuItemResponse, CategoriaResponse } from "@/types";
 import { quiosqueStorage } from "./quiosque-storage";
 
 export type QrAuthContext = {
@@ -33,6 +33,7 @@ class MenuItemService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
     return httpJson(`${API_BASE_URL}/api/v1/auth?token=${encodeURIComponent(token)}`);
   }
+
   async getClientToken(cliente: QrAuthClient): Promise<QrAuthToken> {
     return httpJson(`${API_BASE_URL}/api/v1/cliente`, {
       method: 'POST',
@@ -64,6 +65,20 @@ class MenuItemService {
       },
     });
   }
+
+   async getCategoria(): Promise<CategoriaResponse[]> {
+    
+   
+    const token = quiosqueStorage.getToken();
+    return httpJson(`${API_BASE_URL}/api/v1/categoria`, {
+      method: 'GET',
+      headers: {
+        accept: '*/*',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  }
+  
 }
 
 export const menuItemService = new MenuItemService();

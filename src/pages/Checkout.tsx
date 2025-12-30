@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
@@ -11,44 +11,37 @@ import { useAuthCliente } from '@/stores/auth';
 import { ordersStorage } from '@/lib/orders-storage';
 import { orderService } from '@/lib/order-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
-import { formatCurrencyBRL } from '@/lib/utils';
+import { formatCurrencyBRL, formatCPF } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
-import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react';
-import { MERCADO_PAGO_PUBLIC_KEY } from '@/lib/env';
 
 export default function Checkout() {
   const { items, getTotal, clearCart } = useCart();
   const { user } = useAuthCliente();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState('credit');
-  const [address, setAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('pix');
   const [loading, setLoading] = useState(false);
   const [cpfPix, setCpfPix] = useState('');
+  const [email, setEmail] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cardName, setCardName] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
   const [cardCpf, setCardCpf] = useState('');
+  const [taxa, setTaxa] = useState(0.9);
   
-  useEffect(() => {
-    if (MERCADO_PAGO_PUBLIC_KEY) {
-      initMercadoPago(MERCADO_PAGO_PUBLIC_KEY, { locale: 'pt-BR' });
-    }
-  }, []);
-
-  const handleOrderSuccess = async (paymentData?: any) => {
+  const handleOrderSuccess = async () => {
+    debugger
     try {
       if (
         paymentMethod === 'credit' &&
-        !MERCADO_PAGO_PUBLIC_KEY &&
-        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardCpf.trim())
+        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardCpf.trim() || !email.trim())
       ) {
-        toast.error('Informe todos os dados do cartão');
+        toast.error('Informe todos os dados do cartão e email');
         return;
       }
 
-      const total = getTotal() + 5;
+      const total = getTotal() + taxa;
       const ctx = quiosqueStorage.getDataQuiosque();
       
       const payload: any = {
@@ -59,31 +52,24 @@ export default function Checkout() {
         pagamento: {
           metodo: paymentMethod as any,
           pixCpf: paymentMethod === 'pix' ? cpfPix : undefined,
-          cartao: paymentMethod === 'credit' ? (
-             paymentData ? {
-                token: paymentData.token,
-                issuerId: paymentData.issuer_id,
-                paymentMethodId: paymentData.payment_method_id,
-                installments: paymentData.installments,
-                identification: paymentData.payer.identification,
-                email: paymentData.payer.email,
-             } : {
-                numero: cardNumber,
-                nome: cardName,
-                expiracao: cardExpiry,
-                cvv: cardCvv,
-                identification: {
-                  type: 'CPF',
-                  number: cardCpf
-                }
+          email: paymentMethod === 'pix' ? email : undefined,
+          cartao: paymentMethod === 'credit' ? {
+             numero: cardNumber,
+             nome: cardName,
+             expiracao: cardExpiry,
+             cvv: cardCvv,
+             email,
+             identification: {
+               type: 'CPF',
+               number: cardCpf
              }
-          ) : undefined,
+          } : undefined,
         },
         total,
       };
 
-      await orderService.createOrder(payload);
-
+      const response = await orderService.createOrder(payload);
+      debugger
       const now = new Date().toISOString();
       ordersStorage.add({
         id: String(Date.now()),
@@ -96,8 +82,25 @@ export default function Checkout() {
         updated_at: now,
       });
       clearCart();
-      toast.success('Pedido realizado com sucesso! Tempo estimado: 30-40 minutos');
-      navigate('/orders');
+      
+      if (paymentMethod === 'pix') {
+        // Tenta extrair dados do PIX da resposta ou usa mock para demonstração
+        const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
+        // Mock de QR Code (exemplo estático) caso o backend ainda não retorne
+        const pixCode = response.point_of_interaction.transaction_data.qr_code;
+        const totalMount = response.transaction_amount;
+        
+        navigate('/payment/pix', { 
+          state: { 
+            qrCode: pixData.qrCode || pixCode, 
+            copyPasteCode: pixData.copyPasteCode || pixCode,
+            totalMount 
+          } 
+        });
+      } else {
+        toast.success('Pedido realizado com sucesso! Tempo estimado: 30-40 minutos');
+        navigate('/orders');
+      }
     } catch (error: any) {
       console.error('Error creating order:', error);
       toast.error('Erro ao criar pedido. Tente novamente.');
@@ -112,36 +115,16 @@ export default function Checkout() {
     
     setLoading(true);
 
-    if (paymentMethod === 'pix' && !cpfPix.trim()) {
-      toast.error('Informe o CPF para pagamento via PIX');
+    if (paymentMethod === 'pix' && (!cpfPix.trim() || !email.trim())) {
+      toast.error('Informe o CPF e email para pagamento via PIX');
       setLoading(false);
       return;
     }
 
-    // For credit with Mercado Pago, the CardPayment brick handles submission.
-    // If we are using manual fields (fallback), we handle it here.
-    if (paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY) {
-        await handleOrderSuccess();
-    } else if (paymentMethod !== 'credit') {
-       await handleOrderSuccess();
-    }
+    await handleOrderSuccess();
   };
 
-  const onCardPaymentSubmit = async (formData: any) => {
-    if (!address.trim()) {
-       toast.error('Informe o endereço de entrega antes de pagar.');
-       return Promise.reject(); 
-    }
-    return new Promise<void>((resolve, reject) => {
-      setLoading(true);
-      handleOrderSuccess(formData)
-        .then(() => resolve())
-        .catch(() => {
-          setLoading(false);
-          reject();
-        });
-    });
-  };
+
 
   if (items.length === 0) {
     return (
@@ -223,34 +206,45 @@ export default function Checkout() {
               </div>
 
               {paymentMethod === 'pix' && (
-                <div className="space-y-2">
-                  <Label htmlFor="cpf-pix">CPF</Label>
-                  <Input
-                    id="cpf-pix"
-                    placeholder="000.000.000-00"
-                    value={cpfPix}
-                    onChange={(e) => setCpfPix(e.target.value)}
-                    required
-                  />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email-pix">Email</Label>
+                    <Input
+                      id="email-pix"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf-pix">CPF</Label>
+                    <Input
+                      id="cpf-pix"
+                      placeholder="000.000.000-00"
+                      value={cpfPix}
+                      onChange={(e) => setCpfPix(formatCPF(e.target.value))}
+                      maxLength={14}
+                      required
+                    />
+                  </div>
                 </div>
               )}
 
-              {paymentMethod === 'credit' && MERCADO_PAGO_PUBLIC_KEY && (
-                <div className="pt-4">
-                  <CardPayment
-                    initialization={{ amount: getTotal() + 5 }}
-                    onSubmit={onCardPaymentSubmit}
-                    customization={{
-                      paymentMethods: {
-                        maxInstallments: 12,
-                      },
-                    }}
-                  />
-                </div>
-              )}
-
-              {paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY && (
+              {paymentMethod === 'credit' && (
                 <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="email-card">Email</Label>
+                    <Input
+                      id="email-card"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="card-number">Número do Cartão</Label>
                     <Input
@@ -277,7 +271,8 @@ export default function Checkout() {
                       id="card-cpf"
                       placeholder="000.000.000-00"
                       value={cardCpf}
-                      onChange={(e) => setCardCpf(e.target.value)}
+                      onChange={(e) => setCardCpf(formatCPF(e.target.value))}
+                      maxLength={14}
                       required
                     />
                   </div>
@@ -304,16 +299,14 @@ export default function Checkout() {
                 </div>
               )}
 
-              {((paymentMethod === 'credit' && !MERCADO_PAGO_PUBLIC_KEY) || paymentMethod !== 'credit') && (
-                <Button
-                  type="submit"
-                  className="w-full gradient-primary"
-                  size="lg"
-                  disabled={loading}
-                >
-                  {loading ? 'Processando...' : 'Confirmar Pedido'}
-                </Button>
-              )}
+              <Button
+                type="submit"
+                className="w-full gradient-primary"
+                size="lg"
+                disabled={loading}
+              >
+                {loading ? 'Processando...' : 'Confirmar Pedido'}
+              </Button>
                 </form>
               </CardContent>
             </Card>
@@ -345,13 +338,13 @@ export default function Checkout() {
                     <span>{formatCurrencyBRL(getTotal())}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taxa de Entrega</span>
-                    <span>{formatCurrencyBRL(5)}</span>
+                    <span className="text-muted-foreground">Taxa de Serviço</span>
+                    <span>{formatCurrencyBRL(taxa)}</span>
                   </div>
                   <div className="mt-4 flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-primary">
-                      {formatCurrencyBRL(getTotal() + 5)}
+                      {formatCurrencyBRL(getTotal() + taxa)}
                     </span>
                   </div>
                 </div>

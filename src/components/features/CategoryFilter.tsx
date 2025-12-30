@@ -1,5 +1,6 @@
-import { CATEGORIES } from '@/constants/menu';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { menuItemService } from '@/lib/menu-service';
 
 interface CategoryFilterProps {
   selectedCategory: string | null;
@@ -7,6 +8,16 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ selectedCategory, onSelectCategory }: CategoryFilterProps) {
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    menuItemService.getCategoria().then((response) => {
+      if (Array.isArray(response)) {
+        setCategories(response.map((c) => c.descricao));
+      }
+    }).catch(console.error);
+  }, []);
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
       <Button
@@ -16,7 +27,7 @@ export function CategoryFilter({ selectedCategory, onSelectCategory }: CategoryF
       >
         Todos
       </Button>
-      {CATEGORIES.map((category) => (
+      {categories.map((category) => (
         <Button
           key={category}
           variant={selectedCategory === category ? 'default' : 'outline'}

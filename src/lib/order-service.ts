@@ -10,6 +10,7 @@ export type OrderItemPayload = {
 export type PaymentPayload = {
   metodo: 'credit' | 'cash' | 'pix';
   pixCpf?: string;
+  email?: string;
   cartao?: {
     numero?: string;
     nome?: string;
@@ -23,6 +24,7 @@ export type PaymentPayload = {
       type: string;
       number: string;
     };
+    email?: string;
   };
 };
 
