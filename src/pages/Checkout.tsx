@@ -28,8 +28,8 @@ export default function Checkout() {
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
   const [cardCpf, setCardCpf] = useState('');
-  const [taxa, setTaxa] = useState(0.9);
-  
+ 
+
   const handleOrderSuccess = async () => {
     debugger
     try {
@@ -41,7 +41,7 @@ export default function Checkout() {
         return;
       }
 
-      const total = getTotal() + taxa;
+      const total = getTotal() + 0.9;
       const ctx = quiosqueStorage.getDataQuiosque();
       
       const payload: any = {
@@ -339,12 +339,12 @@ export default function Checkout() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Taxa de Serviço</span>
-                    <span>{formatCurrencyBRL(taxa)}</span>
+                    <span>{formatCurrencyBRL( 0.9)}</span>
                   </div>
                   <div className="mt-4 flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-primary">
-                      {formatCurrencyBRL(getTotal() + taxa)}
+                      {formatCurrencyBRL(getTotal() + 0.9)}
                     </span>
                   </div>
                 </div>

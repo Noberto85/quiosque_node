@@ -90,6 +90,14 @@ export function CartDrawer() {
 
           {items.length > 0 && (
             <div className="border-t p-4">
+               <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>{formatCurrencyBRL(getTotal())}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Taxa de Serviço</span>
+                    <span>{formatCurrencyBRL( 0.9)}</span>
+                  </div>
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
                 <span className="text-primary">{formatCurrencyBRL(getTotal())}</span>
