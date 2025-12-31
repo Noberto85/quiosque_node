@@ -144,7 +144,7 @@ export default function Orders() {
                             className="flex justify-between text-sm"
                           >
                             <span className="text-muted-foreground">
-                              {item.quantidade}x {item.nome}
+                              {item.quantidade}x {item.descricao}
                             </span>
                             <span className="font-medium">
                               {formatCurrencyBRL(item.preco * item.quantidade)}
