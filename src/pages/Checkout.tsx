@@ -92,7 +92,7 @@ export default function Checkout() {
         
         navigate('/payment/pix', { 
           state: { 
-            id: response.id,
+            idPagamento: response.id,
             expirationDate: response.dateOfExpiration,
             qrCode: pixData.qrCode || pixCode, 
             copyPasteCode: pixData.copyPasteCode || pixCode,

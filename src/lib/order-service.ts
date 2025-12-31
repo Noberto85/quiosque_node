@@ -49,6 +49,17 @@ class OrderService {
       body: JSON.stringify(payload),
     });
   }
+
+  async getPaymentStatus(id: string) {
+    const token = quiosqueStorage.getToken();
+    return httpJson(`${API_BASE_URL}/api/v1/pagamento/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  }
 }
 
 export const orderService = new OrderService();

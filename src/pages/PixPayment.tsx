@@ -8,17 +8,18 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { formatCurrencyBRL } from '@/lib/utils';
 
+
 export default function PixPayment() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { qrCode, totalMount, copyPasteCode, expirationDate } = location.state || {};
+  const { idPagamento, qrCode, totalMount, copyPasteCode, expirationDate } = location.state || {};
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [expired, setExpired] = useState(false);
 
   useEffect(() => {
-    debugger
-    const expiryTime =  new Date(expirationDate).getTime();
+
+    const expiryTime = expirationDate ? new Date(expirationDate).getTime() : new Date().getTime() + 30 * 60 * 1000;
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -28,6 +29,7 @@ export default function PixPayment() {
         clearInterval(interval);
         setExpired(true);
         setTimeLeft('EXPIRADO');
+        navigate('/order-success', { state: { status: 'expired' } });
       } else {
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -37,6 +39,40 @@ export default function PixPayment() {
 
     return () => clearInterval(interval);
   }, [expirationDate]);
+
+  useEffect(() => {
+
+    if (!idPagamento || expired) {
+      toast.success('Pagamento expirado!');
+      navigate('/order-success', { state: { status: 'success' } });
+      return;
+    }
+
+
+    const ws = new WebSocket("ws://localhost:8082/ws/pix");
+
+    ws.onopen = () => {
+      console.log("Conexão WebSocket aberta");
+      ws.send(JSON.stringify({ id: idPagamento }));
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.status === 'approved') {
+        toast.success('Pagamento confirmado!');
+        navigate('/order-success', { state: { status: 'success' } });
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("Erro WebSocket:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("Conexão WebSocket fechada");
+    };
+
+  }, [idPagamento, expired, navigate]);
 
   // Fallback or validation
   if (!qrCode && !copyPasteCode) {
@@ -65,7 +101,7 @@ export default function PixPayment() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8 flex flex-col items-center">
         <Button
           variant="ghost"
@@ -85,9 +121,9 @@ export default function PixPayment() {
           </CardHeader>
           <CardContent className="space-y-6 flex flex-col items-center">
             <div className="bg-white p-4 rounded-lg shadow-sm relative">
-              <QRCode 
-                value={qrCode || copyPasteCode} 
-                size={200} 
+              <QRCode
+                value={qrCode || copyPasteCode}
+                size={200}
                 style={{ opacity: expired ? 0.2 : 1 }}
               />
               {expired && (
@@ -139,8 +175,8 @@ export default function PixPayment() {
               <p>Você pode acompanhar o status em "Meus Pedidos".</p>
             </div>
 
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               onClick={() => navigate('/orders')}
             >
               Já realizei o pagamento

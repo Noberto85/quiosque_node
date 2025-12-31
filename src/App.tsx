@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import ErrorPage from './pages/Error';
 import Checkout from './pages/Checkout';
 import PixPayment from './pages/PixPayment';
+import OrderSuccess from './pages/OrderSuccess';
 import Orders from './pages/Orders';
 import { quiosqueStorage } from './lib/quiosque-storage';
 
@@ -69,6 +70,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <PixPayment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/order-success"
+          element={
+            <ProtectedRoute>
+              <OrderSuccess />
             </ProtectedRoute>
           }
         />
