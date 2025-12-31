@@ -9,7 +9,8 @@ import { Order } from '@/types';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrencyBRL } from '@/lib/utils';
-import { ordersStorage } from '@/lib/orders-storage';
+import { orderService } from '@/lib/order-service';
+import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export default function Orders() {
   const { user } = useAuthCliente();
@@ -24,9 +25,10 @@ export default function Orders() {
   const fetchOrders = async () => {
     if (!user) return;
     try {
-      const all = ordersStorage.getAll();
-      const mine = all.filter((o) => o.user_id === user.telefone);
-      setOrders(mine);
+     const quisoque = quiosqueStorage.getDataQuiosque();
+      const order = await orderService.getPaymentStatus(user.telefone, quisoque.quiosqueId);
+      debugger
+      setOrders(order);
     } catch (error: any) {
       toast.error('Erro ao carregar pedidos');
     } finally {
@@ -35,11 +37,12 @@ export default function Orders() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+    
+    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'|'primary' }> = {
       pending: { label: 'Pendente', variant: 'secondary' },
       preparing: { label: 'Preparando', variant: 'default' },
       delivering: { label: 'Em Entrega', variant: 'default' },
-      completed: { label: 'Entregue', variant: 'outline' },
+      completed: { label: 'Entregue', variant: 'primary' },
       cancelled: { label: 'Cancelado', variant: 'destructive' },
     };
 
@@ -109,12 +112,12 @@ export default function Orders() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        Pedido #{order.id.slice(0, 8)}
+                        Pedido #{order.codigo}
                         {getStatusBadge(order.status)}
                       </CardTitle>
                       <CardDescription className="mt-2 flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        {new Date(order.created_at).toLocaleString('pt-BR', {
+                        {new Date(order.dataInit).toLocaleString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit',
                           year: 'numeric',
@@ -135,7 +138,7 @@ export default function Orders() {
                     <div>
                       <h4 className="mb-2 font-semibold">Itens:</h4>
                       <div className="space-y-2">
-                        {order.items.map((item, index) => (
+                        {order.itens.map((item, index) => (
                           <div
                             key={index}
                             className="flex justify-between text-sm"
@@ -150,11 +153,10 @@ export default function Orders() {
                         ))}
                       </div>
                     </div>
-
                     <div className="flex flex-col gap-2 border-t pt-4 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                       
+                        Mesa: {order.mesa}
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <CreditCard className="h-4 w-4" />

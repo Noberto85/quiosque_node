@@ -9,7 +9,7 @@ export type OrderItemPayload = {
 
 export type PaymentPayload = {
   metodo: 'credit' | 'cash' | 'pix';
-  pixCpf?: string;
+  documento?: string;
   email?: string;
   cartao?: {
     numero?: string;
@@ -50,9 +50,9 @@ class OrderService {
     });
   }
 
-  async getPaymentStatus(id: string) {
+  async getPaymentStatus(telefone: string, quiosque: string) {
     const token = quiosqueStorage.getToken();
-    return httpJson(`${API_BASE_URL}/api/v1/pagamento/${id}`, {
+    return httpJson(`${API_BASE_URL}/api/v1/pedido/findByCliente/${telefone}/${quiosque}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

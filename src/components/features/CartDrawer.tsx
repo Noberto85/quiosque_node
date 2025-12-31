@@ -100,7 +100,7 @@ export function CartDrawer() {
                   </div>
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-primary">{formatCurrencyBRL(getTotal())}</span>
+                <span className="text-primary">{formatCurrencyBRL(getTotal()+ 0.9) }</span>
               </div>
               <Button
                 onClick={handleCheckout}

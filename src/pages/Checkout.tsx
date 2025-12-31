@@ -51,7 +51,7 @@ export default function Checkout() {
         items: items.map((i) => ({ id: i.id, quantidade: i.quantidade })),
         pagamento: {
           metodo: paymentMethod as any,
-          pixCpf: paymentMethod === 'pix' ? cpfPix : undefined,
+          documento: paymentMethod === 'pix' ? cpfPix : undefined,
           email: paymentMethod === 'pix' ? email : undefined,
           cartao: paymentMethod === 'credit' ? {
              numero: cardNumber,

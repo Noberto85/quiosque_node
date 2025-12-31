@@ -24,9 +24,7 @@ export default function Login() {
 
 
   useEffect(() => {
-    debugger
-    const claim = quiosqueStorage.getClaim();
-       
+ 
     if (token) {
       setContextLoading(true);
       qrAuthService
@@ -37,15 +35,11 @@ export default function Login() {
             quiosqueStorage.setDataQuiosque(data);
           }
         })
-        .catch((error: any) => {
-          debugger
+        .catch((error: any) => {  
           toast.error(error.message);
-          
-          
         })
         .finally(() => setContextLoading(false));
     } else {
-       toast.error("Token inválido >>" + API_BASE_URL);
        quiosqueStorage.removeDataQuiosque();
       navigate('/');
     }
@@ -56,7 +50,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      debugger
+     
       const token = await qrAuthService.getClientToken({
         nome,
         quiosqueId: context?.quiosqueId,
@@ -64,7 +58,7 @@ export default function Login() {
         telefone: onlyDigits(telefone),
       });
 
-      debugger
+     
       quiosqueStorage.setClaim(token.token);
       login({ username: nome, telefone: onlyDigits(telefone) });
       navigate('/menu');

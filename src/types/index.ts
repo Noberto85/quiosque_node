@@ -25,13 +25,15 @@ export interface CartItem extends MenuItem {
 
 export interface Order {
   id: string;
+  codigo: string;
   user_id: string;
-  items: CartItem[];
+  mesa: number;
+  itens: CartItem[];
   total: number;
   payment_method: string;
   status: string;
-  created_at: string;
-  updated_at: string;
+  dataInit: string;
+  dataFim: string;
 }
 
 export interface MenuItemResponse {
