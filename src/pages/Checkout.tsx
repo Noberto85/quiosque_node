@@ -27,7 +27,9 @@ export default function Checkout() {
   const [cardName, setCardName] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
-  const [cardCpf, setCardCpf] = useState('');
+  const [documento, setDocumento] = useState('');
+  const [nome, setNome] = useState('');
+
  
 
   const handleOrderSuccess = async () => {
@@ -35,7 +37,7 @@ export default function Checkout() {
     try {
       if (
         paymentMethod === 'credit' &&
-        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardCpf.trim() || !email.trim())
+        (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !documento.trim() || !email.trim())
       ) {
         toast.error('Informe todos os dados do cartão e email');
         return;
@@ -61,7 +63,7 @@ export default function Checkout() {
              email,
              identification: {
                type: 'CPF',
-               number: cardCpf
+               number: documento
              }
           } : undefined,
         },
@@ -71,16 +73,7 @@ export default function Checkout() {
       const response = await orderService.createOrder(payload);
       debugger
       const now = new Date().toISOString();
-      ordersStorage.add({
-        id: String(Date.now()),
-        user_id: user?.telefone || '',
-        items,
-        total,
-        payment_method: paymentMethod,
-        status: 'pending',
-        created_at: now,
-        updated_at: now,
-      });
+     
       clearCart();
       
       if (paymentMethod === 'pix') {
@@ -172,6 +165,16 @@ export default function Checkout() {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
+                    <Label htmlFor="address">Nome para Entrega</Label>
+                    <Input
+                      id="address"
+                      placeholder="Seu nome:"
+                      value={nome}
+                      onChange={(e) => setNome(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label>Método de Pagamento</Label>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                   <div className="flex items-center space-x-2 rounded-lg border p-4">
@@ -184,16 +187,7 @@ export default function Checkout() {
                       </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="cash" id="cash" />
-                    <Label htmlFor="cash" className="flex flex-1 cursor-pointer items-center gap-2">
-                      <Wallet className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="font-medium">Dinheiro</p>
-                        <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
-                      </div>
-                    </Label>
-                  </div>
+                 
                   <div className="flex items-center space-x-2 rounded-lg border p-4">
                     <RadioGroupItem value="pix" id="pix" />
                     <Label htmlFor="pix" className="flex flex-1 cursor-pointer items-center gap-2">
@@ -234,7 +228,7 @@ export default function Checkout() {
                 </div>
               )}
 
-              {paymentMethod === 'credit' && (
+              {paymentMethod === 'credit1' && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="email-card">Email</Label>
@@ -272,8 +266,8 @@ export default function Checkout() {
                     <Input
                       id="card-cpf"
                       placeholder="000.000.000-00"
-                      value={cardCpf}
-                      onChange={(e) => setCardCpf(formatCPF(e.target.value))}
+                      value={documento}
+                      onChange={(e) => setDocumento(formatCPF(e.target.value))} 
                       maxLength={14}
                       required
                     />

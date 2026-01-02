@@ -27,7 +27,6 @@ export default function Orders() {
     try {
      const quisoque = quiosqueStorage.getDataQuiosque();
       const order = await orderService.getPaymentStatus(user.telefone, quisoque.quiosqueId);
-      debugger
       setOrders(order);
     } catch (error: any) {
       toast.error('Erro ao carregar pedidos');
@@ -113,11 +112,13 @@ export default function Orders() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         Pedido #{order.codigo}
-                        {getStatusBadge(order.status)}
+                        <span className="hidden md:flex">
+                          {getStatusBadge(order.status)}
+                        </span>
                       </CardTitle>
                       <CardDescription className="mt-2 flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        {new Date(order.dataInit).toLocaleString('pt-BR', {
+                        Data Pedido: {new Date(order.dataInit).toLocaleString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit',
                           year: 'numeric',
@@ -125,11 +126,26 @@ export default function Orders() {
                           minute: '2-digit',
                         })}
                       </CardDescription>
+                      {order.dataFim && (
+                        <CardDescription className="mt-2 flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                         Data Entrega: {new Date(order.dataFim).toLocaleString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </CardDescription>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-primary">
                         {formatCurrencyBRL(order.total)}
                       </p>
+                      <div className="mt-1 flex justify-end md:hidden">
+                        {getStatusBadge(order.status)}
+                      </div>
                     </div>
                   </div>
                 </CardHeader>

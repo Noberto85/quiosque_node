@@ -11,6 +11,7 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loadingItems, setLoadingItems] = useState<boolean>(false);
+  const quiosqueData = quiosqueStorage.getDataQuiosque();
 
   const filteredItems = selectedCategory
     ? items.filter((item) => item.categoria === selectedCategory)
@@ -46,6 +47,9 @@ export default function Menu() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
+          {quiosqueData?.quiosque && (
+             <h2 className="mb-2 text-2xl font-semibold text-primary">{quiosqueData.quiosque}</h2>
+          )}
           <h1 className="mb-2 text-4xl font-bold text-gradient">Nosso Cardápio</h1>
           <p className="text-muted-foreground">
             Escolha seus pratos favoritos e faça seu pedido
