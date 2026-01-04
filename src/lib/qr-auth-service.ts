@@ -4,6 +4,7 @@ export type QrAuthContext = {
   quiosque?: string;
   garcom?: string;
   quiosqueId: string;
+  cliente?: string;
 };
 
 export type QrAuthToken = {

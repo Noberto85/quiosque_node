@@ -77,17 +77,13 @@ export default function Checkout() {
         total,
       };
 
-      const response = await orderService.createOrder(payload).catch((error: any) => {
-        toast.error(error.message);
-        throw error;
-      });
+      const response = await orderService.createOrder(payload);
 
       clearCart();
       
       if (paymentMethod === 'pix') {
-        // Tenta extrair dados do PIX da resposta ou usa mock para demonstração
+
         const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
-        // Mock de QR Code (exemplo estático) caso o backend ainda não retorne
         const pixCode = response.qrCode;
         const totalMount = response.valor;
         
@@ -106,7 +102,6 @@ export default function Checkout() {
       }
     } catch (error: any) {
       console.error('Error creating order:', error);
-      toast.error('Erro ao criar pedido. Tente novamente.');
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCart } from '@/stores/cart';
-import { useAuthCliente } from '@/stores/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -18,7 +17,7 @@ import { formatPhoneBR } from '@/lib/utils';
 
 export function Header() {
   const { items, toggleCart } = useCart();
-  const { user, logout } = useAuthCliente();
+  const quiosqueData = quiosqueStorage.getDataQuiosque();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const itemCount = items.reduce((sum, item) => sum + item.quantidade, 0);
@@ -26,7 +25,6 @@ export function Header() {
   const handleLogout = async () => {
     try {
       quiosqueStorage.removeDataQuiosque();
-      logout();
       toast.success('Logout realizado com sucesso!');
       navigate('/');
     } catch (error: any) {
@@ -81,7 +79,7 @@ export function Header() {
                     <User className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">{formatPhoneBR(user?.telefone || '')}</p>
+                    <p className="text-sm text-muted-foreground">{formatPhoneBR(quiosqueData.cliente || '')}</p>
                   </div>
                 </div>
 

@@ -8,9 +8,17 @@ const TOKEN = 'token';
 
 export const quiosqueStorage = {
   setDataQuiosque(data: QrAuthContext) {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(data));
-    } catch { }
+    localStorage.setItem(KEY, JSON.stringify(data));
+  },
+  setUpdateDataQuiosque(cliente: string) {
+     const dat = localStorage.getItem(KEY);
+    if (dat) {
+      const quiosque = JSON.parse(dat);
+      quiosque.mesa = quiosque.mesa;
+      quiosque.garcom =  quiosque.garcom;
+      quiosque.cliente = cliente;
+      localStorage.setItem(KEY, JSON.stringify(quiosque));
+    }
   },
   setClaim(token: string) {
     try {
@@ -28,7 +36,7 @@ export const quiosqueStorage = {
       return null;
     }
   },
-   getClaim<T extends Record<string, any> = QrAuthJwtClaims>(): T | null {
+  getClaim<T extends Record<string, any> = QrAuthJwtClaims>(): T | null {
     try {
       const raw = localStorage.getItem(CLAIM);
       return raw ? (JSON.parse(raw) as T) : null;

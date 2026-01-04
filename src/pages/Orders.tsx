@@ -23,13 +23,13 @@ export default function Orders() {
   }, [user]);
 
   const fetchOrders = async () => {
-    if (!user) return;
+  
     try {
      const quisoque = quiosqueStorage.getDataQuiosque();
-      const order = await orderService.getPaymentStatus(user.telefone, quisoque.quiosqueId);
+      const order = await orderService.getPaymentStatus(quisoque.cliente, quisoque.quiosqueId);
       setOrders(order);
     } catch (error: any) {
-      toast.error('Erro ao carregar pedidos');
+      console.error('Erro ao carregar pedidos', error);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { useAuthCliente } from './stores/auth';
 import Login from './pages/Login';
 import Menu from './pages/Menu';
@@ -14,7 +14,7 @@ import { quiosqueStorage } from './lib/quiosque-storage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthCliente();
-
+  debugger
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -22,10 +22,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-debugger
+  debugger
   const claim = quiosqueStorage.getClaim();
   if (!claim) {
-    return <Navigate to="/menu"  />;
+    toast.error('Sessão expirada. Por favor, faça login novamente.');
+    return <Navigate to="/" />;
   }
 
   /* if (!user) {
@@ -52,9 +53,11 @@ export default function App() {
         <Route
           path="/menu"
           element={
-         
+            <ProtectedRoute>
               <Menu />
-           
+            </ProtectedRoute>
+
+
           }
         />
         <Route

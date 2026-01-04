@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { UtensilsCrossed } from 'lucide-react';
 import { qrAuthService } from '@/lib/qr-auth-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
-import { API_BASE_URL } from '@/lib/env';
 import { formatPhoneBR, onlyDigits } from '@/lib/utils';
 
 export default function Login() {
@@ -37,6 +36,7 @@ export default function Login() {
         })
         .catch((error: any) => {  
           toast.error(error.message);
+           navigate('/');
         })
         .finally(() => setContextLoading(false));
     } else {
@@ -46,6 +46,7 @@ export default function Login() {
   }, [token]);
 
   const handleLogin = async (e: React.FormEvent) => {
+    debugger
     e.preventDefault();
     setLoading(true);
 
@@ -57,12 +58,12 @@ export default function Login() {
         telefone: onlyDigits(telefone),
       });
 
-     
       quiosqueStorage.setClaim(token.token);
       login({ telefone: onlyDigits(telefone) });
+      quiosqueStorage.setUpdateDataQuiosque(onlyDigits(telefone));
       navigate('/menu');
     } catch (error: any) {
-      toast.error(error.message);
+      console.error(error);
       setLoading(false);
     }
   };
@@ -117,8 +118,6 @@ export default function Login() {
               </Button>
             </form>
           }
-
-
         </CardContent>
       </Card>
     </div>
