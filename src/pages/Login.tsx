@@ -13,7 +13,7 @@ import { API_BASE_URL } from '@/lib/env';
 import { formatPhoneBR, onlyDigits } from '@/lib/utils';
 
 export default function Login() {
-  const [nome, setNome] = useState('');
+ 
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
   const [contextLoading, setContextLoading] = useState(false);
@@ -52,7 +52,6 @@ export default function Login() {
     try {
      
       const token = await qrAuthService.getClientToken({
-        nome,
         quiosqueId: context?.quiosqueId,
         mesa: context?.mesa,
         telefone: onlyDigits(telefone),
@@ -60,7 +59,7 @@ export default function Login() {
 
      
       quiosqueStorage.setClaim(token.token);
-      login({ username: nome, telefone: onlyDigits(telefone) });
+      login({ telefone: onlyDigits(telefone) });
       navigate('/menu');
     } catch (error: any) {
       toast.error(error.message);
@@ -98,18 +97,7 @@ export default function Login() {
           </div>}
           {
             <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-nome">Nome</Label>
-                <Input
-                  id="login-nome"
-                  type="text"
-                  placeholder="Seu nome"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  required
-                />
-              </div>
-
+            
                <div className="space-y-2">
                 <Label htmlFor="login-telefone">Telefone</Label>
                 <Input

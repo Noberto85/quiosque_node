@@ -10,7 +10,6 @@ export type QrAuthToken = {
   token: string;
 };
 export type QrAuthClient = {
-  nome: string;
   telefone: string;
   quiosqueId: string;
   mesa: number;

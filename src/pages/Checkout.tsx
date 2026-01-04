@@ -43,12 +43,19 @@ export default function Checkout() {
         return;
       }
 
+      if (!nome.trim()) {
+        toast.error('Informe seu nome');
+        return;
+      }
+
       const total = getTotal() + 0.9;
       const ctx = quiosqueStorage.getDataQuiosque();
       
       const payload: any = {
+        nome: nome.trim().toUpperCase(),
         quiosqueId: String(ctx?.quiosqueId ?? ''),
         mesa: Number(ctx?.mesa ?? 0),
+        email: email.trim(),
         clienteId: user?.telefone || '',
         items: items.map((i) => ({ id: i.id, quantidade: i.quantidade })),
         pagamento: {
@@ -70,10 +77,11 @@ export default function Checkout() {
         total,
       };
 
-      const response = await orderService.createOrder(payload);
-      debugger
-      const now = new Date().toISOString();
-     
+      const response = await orderService.createOrder(payload).catch((error: any) => {
+        toast.error(error.message);
+        throw error;
+      });
+
       clearCart();
       
       if (paymentMethod === 'pix') {

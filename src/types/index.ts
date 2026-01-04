@@ -6,7 +6,6 @@ export interface AuthUser {
 
 export interface AuthCliente {
   telefone: string;
-  username: string;
 }
 
 export interface MenuItem {

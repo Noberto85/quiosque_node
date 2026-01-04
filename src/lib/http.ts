@@ -2,20 +2,38 @@ import { toast } from 'sonner';
 import { quiosqueStorage } from './quiosque-storage';
 
 function handleErrorStatus(status: number) {
-  const messages: Record<number, string> = {
-    401: 'Sessão expirada. Faça login novamente.',
-    403: 'Acesso negado.',
-    404: 'Recurso não encontrado.',
-    500: 'Erro interno do servidor.',
-  };
-  const message = messages[status] || 'Falha na requisição.';
-  toast.error(message);
-  try {
-    quiosqueStorage.removeDataQuiosque();
-    window.location.href = '/';
-    
-  } catch {}
+  debugger
+  switch (status) {
+    case 401:
+      toast.error('Sessão expirada. Faça login novamente.');
+      try {
+        quiosqueStorage.removeDataQuiosque();
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } catch { }
+      break;
+    case 403:
+      toast.error('Acesso negado.');
+      break;
+    case 404:
+      toast.error('Recurso não encontrado.');
+      break;
+    case 500:
+      toast.error('Erro interno do servidor.');
+      break;
+    default:
+      toast.error('Falha na requisição.');
+      break;
+  }
 }
+
+export async function httpJson<T = any>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+  const res = await httpFetch(input, init);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
 
 export async function httpFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const res = await fetch(input, init);
@@ -26,9 +44,4 @@ export async function httpFetch(input: RequestInfo | URL, init?: RequestInit): P
   return res;
 }
 
-export async function httpJson<T = any>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const res = await httpFetch(input, init);
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
-}
 

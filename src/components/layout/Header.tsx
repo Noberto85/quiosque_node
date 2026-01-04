@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
+import { formatPhoneBR } from '@/lib/utils';
 
 export function Header() {
   const { items, toggleCart } = useCart();
@@ -80,8 +81,7 @@ export function Header() {
                     <User className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">{user?.username}</p>
-                    <p className="text-sm text-muted-foreground">{user?.telefone}</p>
+                    <p className="text-sm text-muted-foreground">{formatPhoneBR(user?.telefone || '')}</p>
                   </div>
                 </div>
 
