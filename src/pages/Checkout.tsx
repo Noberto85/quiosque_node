@@ -10,13 +10,12 @@ import { useCart } from '@/stores/cart';
 import { useAuthCliente } from '@/stores/auth';
 import { orderService } from '@/lib/order-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
-import { formatCurrencyBRL, formatCPF } from '@/lib/utils';
+import { formatCurrencyBRL, formatCPF, isValidCPF, isValidName } from '@/lib/utils';
 import { toast } from 'sonner';
-import { CreditCard, Wallet, ArrowLeft } from 'lucide-react';
+import { CreditCard, ArrowLeft } from 'lucide-react';
 
 export default function Checkout() {
   const { items, getTotal, clearCart } = useCart();
-  const { user } = useAuthCliente();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState('pix');
   const [loading, setLoading] = useState(false);
@@ -37,12 +36,29 @@ export default function Checkout() {
   const handleOrderSuccess = async () => {
     debugger
     try {
+      if (!isValidName(nome)) {
+        toast.error('Informe um nome válido (apenas letras)');
+        return;
+      }
+
+      if (paymentMethod === 'pix') {
+        if (!isValidCPF(cpfPix)) {
+          toast.error('Informe um CPF válido para o PIX');
+          return;
+        }
+      }
+
       if (
         paymentMethod === 'credit' &&
         (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCvv.trim() || !documento.trim() || !email.trim())
       ) {
         toast.error('Informe todos os dados do cartão e email');
         return;
+      }
+
+      if (paymentMethod === 'credit' && !isValidCPF(documento)) {
+         toast.error('Informe um CPF válido para o titular do cartão');
+         return;
       }
 
       if (!nome.trim()) {
@@ -181,13 +197,13 @@ export default function Checkout() {
                   <div className="space-y-2">
                     <Label>Método de Pagamento</Label>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="credit" id="credit" />
-                    <Label htmlFor="credit" className="flex flex-1 cursor-pointer items-center gap-2">
+                  <div className="flex items-center space-x-2 rounded-lg border p-4 opacity-50">
+                    <RadioGroupItem value="credit" id="credit" disabled />
+                    <Label htmlFor="credit" className="flex flex-1 cursor-not-allowed items-center gap-2">
                       <CreditCard className="h-5 w-5 text-primary" />
                       <div>
-                        <p className="font-medium">Cartão de Crédito</p>
-                        <p className="text-sm text-muted-foreground">Pagamento na entrega</p>
+                        <p className="font-medium">Cartão de Crédito (Em breve)</p>
+                      
                       </div>
                     </Label>
                   </div>
