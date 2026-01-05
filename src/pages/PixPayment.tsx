@@ -49,7 +49,7 @@ export default function PixPayment() {
     }
 
 
-    const ws = new WebSocket("ws://localhost:8082/ws/pix");
+    const ws = new WebSocket(`ws://${import.meta.env.VITE_API_BASE_URL}/ws/pix`);
 
     ws.onopen = () => {
       console.log("Conexão WebSocket aberta");
