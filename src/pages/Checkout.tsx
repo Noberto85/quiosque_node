@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCart } from '@/stores/cart';
 import { useAuthCliente } from '@/stores/auth';
-import { ordersStorage } from '@/lib/orders-storage';
 import { orderService } from '@/lib/order-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
 import { formatCurrencyBRL, formatCPF } from '@/lib/utils';
@@ -29,8 +28,11 @@ export default function Checkout() {
   const [cardCvv, setCardCvv] = useState('');
   const [documento, setDocumento] = useState('');
   const [nome, setNome] = useState('');
+  
+  const ctx = quiosqueStorage.getDataQuiosque();
 
- 
+  const taxa = Number(quiosqueStorage.getClaim().taxa);
+
 
   const handleOrderSuccess = async () => {
     debugger
@@ -48,15 +50,14 @@ export default function Checkout() {
         return;
       }
 
-      const total = getTotal() + 0.9;
-      const ctx = quiosqueStorage.getDataQuiosque();
+      const total = getTotal() + taxa;
       
       const payload: any = {
         nome: nome.trim().toUpperCase(),
         quiosqueId: String(ctx?.quiosqueId ?? ''),
         mesa: Number(ctx?.mesa ?? 0),
         email: email.trim(),
-        clienteId: user?.telefone || '',
+        clienteId: ctx?.cliente,
         items: items.map((i) => ({ id: i.id, quantidade: i.quantidade })),
         pagamento: {
           metodo: paymentMethod as any,
@@ -75,6 +76,7 @@ export default function Checkout() {
           } : undefined,
         },
         total,
+        taxa,
       };
 
       const response = await orderService.createOrder(payload);
@@ -109,7 +111,6 @@ export default function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     
     setLoading(true);
 
@@ -338,12 +339,12 @@ export default function Checkout() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Taxa de Serviço</span>
-                    <span>{formatCurrencyBRL( 0.9)}</span>
+                    <span>{formatCurrencyBRL(taxa)}</span>
                   </div>
                   <div className="mt-4 flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-primary">
-                      {formatCurrencyBRL(getTotal() + 0.9)}
+                      {formatCurrencyBRL(getTotal() + taxa)}
                     </span>
                   </div>
                 </div>

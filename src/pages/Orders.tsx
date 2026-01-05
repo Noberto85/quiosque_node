@@ -58,6 +58,27 @@ export default function Orders() {
     return labels[method] || method;
   };
 
+  const handlePendingPayment = async (orderId: string) => {
+    try {
+      const response = await orderService.getPayment(orderId);
+      const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
+      const pixCode = response.qrCode;
+      debugger
+      navigate('/payment/pix', { 
+        state: { 
+          idPagamento: response.id,
+          expirationDate: response.dateOfExpiration,
+          qrCode: pixData.qrCode || pixCode, 
+          copyPasteCode: pixData.copyPasteCode || pixCode,
+          totalMount: response.valor
+        } 
+      });
+    } catch (error) {
+      console.error('Erro ao buscar pagamento:', error);
+      toast.error('Erro ao processar pagamento. Tente novamente.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -178,6 +199,14 @@ export default function Orders() {
                         <CreditCard className="h-4 w-4" />
                         {getPaymentMethodLabel(order.payment_method)}
                       </div>
+                      {order.status === 'pending' && (
+                        <Button 
+                          className="mt-2 w-full" 
+                          onClick={() => handlePendingPayment(order.id)}
+                        >
+                          Pagar Agora
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

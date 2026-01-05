@@ -5,6 +5,7 @@ export type QrAuthContext = {
   garcom?: string;
   quiosqueId: string;
   cliente?: string;
+  taxa?: number;
 };
 
 export type QrAuthToken = {
@@ -27,6 +28,7 @@ export type QrAuthJwtClaims<
     nome?: string;
     numeroMesa?: number;
     mesaId?: number;
+    taxa?: number;
     quiosque_id?: string;
     Roles?: string[];
   }

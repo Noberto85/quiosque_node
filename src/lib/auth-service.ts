@@ -1,14 +1,13 @@
 
-import { AuthCliente, AuthUser } from '@/types';
+import { AuthCliente } from '@/types';
 
 
 class AuthService {
   
-  mapCliente(telefone: string, username: string): AuthCliente {
+  mapCliente(telefone: string): AuthCliente {
     return {
 
       telefone: telefone || '',
-      username: username || '',
     };
   }
 }

@@ -6,6 +6,7 @@ export type QrAuthContext = {
   mesa?: string | number;
   quiosque?: string;
   garcom?: string;
+  taxa?: number;
 };
 
 export type QrAuthToken = {

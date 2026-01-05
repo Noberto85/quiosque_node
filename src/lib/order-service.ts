@@ -35,6 +35,7 @@ export type CreateOrderPayload = {
   items: OrderItemPayload[];
   pagamento: PaymentPayload;
   total: number;
+  taxa?: number;
 };
 
 class OrderService {
@@ -53,6 +54,17 @@ class OrderService {
   async getPaymentStatus(telefone: string, quiosque: string) {
     const token = quiosqueStorage.getToken();
     return httpJson(`${API_BASE_URL}/api/v1/pedido/findByCliente/${telefone}/${quiosque}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  }
+
+  async getPayment(id: string) {
+    const token = quiosqueStorage.getToken();
+    return httpJson(`${API_BASE_URL}/api/v1/pagamento/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -3,10 +3,12 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/stores/cart';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { quiosqueStorage } from '@/lib/quiosque-storage';
 
 export function CartDrawer() {
   const { items, isOpen, toggleCart, updateQuantity, getTotal } = useCart();
   const navigate = useNavigate();
+  const taxa = Number(quiosqueStorage.getClaim().taxa);
 
   const handleCheckout = () => {
     toggleCart();
@@ -100,7 +102,7 @@ export function CartDrawer() {
                   </div>
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-primary">{formatCurrencyBRL(getTotal()+ 0.9) }</span>
+                <span className="text-primary">{formatCurrencyBRL(getTotal() + taxa) }</span>
               </div>
               <Button
                 onClick={handleCheckout}
