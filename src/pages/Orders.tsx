@@ -17,6 +17,7 @@ export default function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -59,11 +60,12 @@ export default function Orders() {
   };
 
   const handlePendingPayment = async (orderId: string) => {
+    setPaymentLoading(orderId);
     try {
       const response = await orderService.getPayment(orderId);
       const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
       const pixCode = response.qrCode;
-      debugger
+      
       navigate('/payment/pix', { 
         state: { 
           idPagamento: response.id,
@@ -76,6 +78,8 @@ export default function Orders() {
     } catch (error) {
       console.error('Erro ao buscar pagamento:', error);
       toast.error('Erro ao processar pagamento. Tente novamente.');
+    } finally {
+      setPaymentLoading(null);
     }
   };
 
@@ -203,8 +207,16 @@ export default function Orders() {
                         <Button 
                           className="mt-2 w-full" 
                           onClick={() => handlePendingPayment(order.id)}
+                          disabled={paymentLoading === order.id}
                         >
-                          Pagar Agora
+                          {paymentLoading === order.id ? (
+                            <>
+                              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                              Processando...
+                            </>
+                          ) : (
+                            'Pagar Agora'
+                          )}
                         </Button>
                       )}
                     </div>
