@@ -8,13 +8,15 @@ export default function OrderSuccess() {
   const location = useLocation();
   const { status } = location.state || { status: 'success' };
 
-  const isSuccess = status === 'success';
+  const isSuccess = status === 'success'; 
+  const isRejected = status === 'rejected';
+  const isCancelled = status === 'cancelled';
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 text-center">
-        <div className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full ${isSuccess ? 'bg-green-100' : 'bg-red-100'}`}>
+        <div className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full ${isSuccess ? 'bg-green-100' : isRejected ? 'bg-red-100' : isCancelled ? 'bg-orange-100' : ''}`}>
           {isSuccess ? (
             <CheckCircle className="h-12 w-12 text-green-600" />
           ) : (
@@ -22,11 +24,15 @@ export default function OrderSuccess() {
           )}
         </div>
         <h2 className="mb-2 text-3xl font-bold text-foreground">
-          {isSuccess ? 'Pedido Realizado com Sucesso!' : 'Pagamento Expirado'}
+          {isSuccess ? 'Pedido Realizado com Sucesso!' : isRejected ? 'Pagamento Rejeitado' : isCancelled ? 'Pagamento Cancelado' : 'Pagamento Expirado'}
         </h2>
         <p className="mb-8 max-w-md text-muted-foreground">
           {isSuccess 
             ? 'Seu pagamento foi confirmado e seu pedido já está sendo preparado. Acompanhe o status em seus pedidos.'
+            : isRejected 
+            ? 'Seu pagamento foi rejeitado. Por favor, tente novamente.'
+            : isCancelled 
+            ? 'Seu pagamento foi cancelado. Por favor, tente novamente.'  
             : 'O tempo para pagamento do PIX expirou. Por favor, realize um novo pedido.'
           }
         </p>

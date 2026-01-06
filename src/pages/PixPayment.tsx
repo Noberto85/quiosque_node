@@ -41,7 +41,7 @@ export default function PixPayment() {
   }, [expirationDate]);
 
   useEffect(() => {
-
+    const ws = new WebSocket(`${import.meta.env.VITE_API_BASE_WS}/ws/pix`);
     if (!idPagamento || expired) {
       toast.success('Pagamento expirado!');
       navigate('/order-success', { state: { status: 'success' } });
@@ -49,7 +49,7 @@ export default function PixPayment() {
     }
 
 
-    const ws = new WebSocket(`${import.meta.env.VITE_API_BASE_WS}/ws/pix`);
+   
 
     ws.onopen = () => {
       console.log("Conexão WebSocket aberta");
@@ -61,7 +61,19 @@ export default function PixPayment() {
       if (message.status === 'approved') {
         toast.success('Pagamento confirmado!');
         navigate('/order-success', { state: { status: 'success' } });
-      }
+        ws.close();
+      } 
+       if (message.status === 'rejected') {
+        toast.error('Pagamento rejeitado!');
+        navigate('/order-success', { state: { status: 'rejected' } });
+        ws.close();
+      } 
+       if (message.status === 'cancelled') {
+        toast.error('Pagamento cancelado!');
+        navigate('/order-success', { state: { status: 'cancelled' } });
+        ws.close();
+      } 
+       
     };
 
     ws.onerror = (error) => {
@@ -69,6 +81,7 @@ export default function PixPayment() {
     };
 
     ws.onclose = () => {
+      debugger
       console.log("Conexão WebSocket fechada");
     };
 
