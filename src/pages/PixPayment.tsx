@@ -73,6 +73,7 @@ export default function PixPayment() {
     };
 
   }, [idPagamento, expired, navigate]);
+  
 
   // Fallback or validation
   if (!qrCode && !copyPasteCode) {

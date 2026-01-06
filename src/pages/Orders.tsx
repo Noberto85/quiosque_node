@@ -24,9 +24,9 @@ export default function Orders() {
   }, [user]);
 
   const fetchOrders = async () => {
-  
+
     try {
-     const quisoque = quiosqueStorage.getDataQuiosque();
+      const quisoque = quiosqueStorage.getDataQuiosque();
       const order = await orderService.getPaymentStatus(quisoque.cliente, quisoque.quiosqueId);
       setOrders(order);
     } catch (error: any) {
@@ -37,8 +37,8 @@ export default function Orders() {
   };
 
   const getStatusBadge = (status: string) => {
-    
-    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'|'primary' }> = {
+
+    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'primary' }> = {
       pending: { label: 'Pendente', variant: 'secondary' },
       preparing: { label: 'Preparando', variant: 'default' },
       delivering: { label: 'Em Entrega', variant: 'default' },
@@ -65,19 +65,19 @@ export default function Orders() {
       const response = await orderService.getPayment(orderId);
       const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
       const pixCode = response.qrCode;
-      
-      navigate('/payment/pix', { 
-        state: { 
+
+      navigate('/payment/pix', {
+        state: {
           idPagamento: response.id,
           expirationDate: response.dateOfExpiration,
-          qrCode: pixData.qrCode || pixCode, 
+          qrCode: pixData.qrCode || pixCode,
           copyPasteCode: pixData.copyPasteCode || pixCode,
           totalMount: response.valor
-        } 
+        }
       });
     } catch (error) {
       console.error('Erro ao buscar pagamento:', error);
-      toast.error('Erro ao processar pagamento. Tente novamente.');
+      navigate('/orders');
     } finally {
       setPaymentLoading(null);
     }
@@ -97,7 +97,7 @@ export default function Orders() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
@@ -123,9 +123,9 @@ export default function Orders() {
               <p className="mb-6 text-muted-foreground">
                 Faça seu primeiro pedido e ele aparecerá aqui
               </p>
-          <Button onClick={() => navigate('/menu')} className="gradient-primary">
-            Ver Cardápio
-          </Button>
+              <Button onClick={() => navigate('/menu')} className="gradient-primary">
+                Ver Cardápio
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -154,7 +154,7 @@ export default function Orders() {
                       {order.dataFim && (
                         <CardDescription className="mt-2 flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
-                         Data Entrega: {new Date(order.dataFim).toLocaleString('pt-BR', {
+                          Data Entrega: {new Date(order.dataFim).toLocaleString('pt-BR', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
@@ -204,8 +204,8 @@ export default function Orders() {
                         {getPaymentMethodLabel(order.payment_method)}
                       </div>
                       {order.status === 'pending' && (
-                        <Button 
-                          className="mt-2 w-full" 
+                        <Button
+                          className="mt-2 w-full"
                           onClick={() => handlePendingPayment(order.id)}
                           disabled={paymentLoading === order.id}
                         >

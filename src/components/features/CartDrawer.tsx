@@ -56,7 +56,7 @@ export function CartDrawer() {
                     <div className="flex-1">
                       <h3 className="font-medium line-clamp-1">{item.nome}</h3>
                       <p className="text-sm text-primary font-semibold">
-                        {formatCurrencyBRL(item.preco)} 
+                        {formatCurrencyBRL(item.preco)}
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <Button
@@ -92,17 +92,17 @@ export function CartDrawer() {
 
           {items.length > 0 && (
             <div className="border-t p-4">
-               <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>{formatCurrencyBRL(getTotal())}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taxa de Serviço</span>
-                    <span>{formatCurrencyBRL( 0.9)}</span>
-                  </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span>{formatCurrencyBRL(getTotal())}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Taxa de Serviço</span>
+                <span>{formatCurrencyBRL(taxa)}</span>
+              </div>
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-primary">{formatCurrencyBRL(getTotal() + taxa) }</span>
+                <span className="text-primary">{formatCurrencyBRL(getTotal() + taxa)}</span>
               </div>
               <Button
                 onClick={handleCheckout}
