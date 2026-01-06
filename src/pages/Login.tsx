@@ -46,7 +46,7 @@ export default function Login() {
   }, [token]);
 
   const handleLogin = async (e: React.FormEvent) => {
-    debugger
+  
     e.preventDefault();
     setLoading(true);
 

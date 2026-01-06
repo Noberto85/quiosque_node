@@ -60,6 +60,7 @@ export default function Orders() {
   };
 
   const handlePendingPayment = async (orderId: string) => {
+    
     setPaymentLoading(orderId);
     try {
       const response = await orderService.getPayment(orderId);
@@ -68,7 +69,7 @@ export default function Orders() {
 
       navigate('/payment/pix', {
         state: {
-          idPagamento: response.id,
+          idPagamento: orderId,
           expirationDate: response.dateOfExpiration,
           qrCode: pixData.qrCode || pixCode,
           copyPasteCode: pixData.copyPasteCode || pixCode,

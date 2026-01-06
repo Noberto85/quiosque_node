@@ -14,7 +14,7 @@ import { quiosqueStorage } from './lib/quiosque-storage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthCliente();
-  debugger
+ 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -22,7 +22,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  debugger
+  
   const claim = quiosqueStorage.getClaim();
   if (!claim) {
     toast.error('Sessão expirada. Por favor, faça login novamente.');

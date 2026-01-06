@@ -34,7 +34,7 @@ export default function Checkout() {
 
 
   const handleOrderSuccess = async () => {
-    debugger
+
     try {
       if (!isValidName(nome)) {
         toast.error('Informe um nome válido (apenas letras)');
@@ -104,7 +104,7 @@ export default function Checkout() {
         const pixData = (response as any)?.payment?.pix || (response as any)?.pix || {};
         const pixCode = response.qrCode;
         const totalMount = response.valor;
-        
+      
         navigate('/payment/pix', { 
           state: { 
             idPagamento: response.id,

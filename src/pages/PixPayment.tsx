@@ -7,6 +7,7 @@ import QRCode from 'react-qr-code';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { formatCurrencyBRL } from '@/lib/utils';
+import { orderService } from '@/lib/order-service';
 
 
 export default function PixPayment() {
@@ -41,15 +42,16 @@ export default function PixPayment() {
   }, [expirationDate]);
 
   useEffect(() => {
-    const ws = new WebSocket(`${import.meta.env.VITE_API_BASE_WS}/ws/pix`);
+   
     if (!idPagamento || expired) {
-      toast.success('Pagamento expirado!');
-      navigate('/order-success', { state: { status: 'success' } });
+      if (!expired) {
+        toast.success('Pagamento expirado!');
+        navigate('/order-success', { state: { status: 'success' } });
+      }
       return;
     }
 
-
-   
+    const ws = new WebSocket(`${import.meta.env.VITE_API_BASE_WS}/ws/pix`);
 
     ws.onopen = () => {
       console.log("Conexão WebSocket aberta");
@@ -62,18 +64,18 @@ export default function PixPayment() {
         toast.success('Pagamento confirmado!');
         navigate('/order-success', { state: { status: 'success' } });
         ws.close();
-      } 
-       if (message.status === 'rejected') {
+      }
+      if (message.status === 'rejected') {
         toast.error('Pagamento rejeitado!');
         navigate('/order-success', { state: { status: 'rejected' } });
         ws.close();
-      } 
-       if (message.status === 'cancelled') {
+      }
+      if (message.status === 'cancelled') {
         toast.error('Pagamento cancelado!');
         navigate('/order-success', { state: { status: 'cancelled' } });
         ws.close();
-      } 
-       
+      }
+
     };
 
     ws.onerror = (error) => {
@@ -81,10 +83,42 @@ export default function PixPayment() {
     };
 
     ws.onclose = () => {
-      debugger
       console.log("Conexão WebSocket fechada");
     };
 
+    return () => {
+      ws.close();
+    };
+
+  }, [idPagamento, expired, navigate]);
+
+  useEffect(() => {
+    
+    const handleVisibilityChange = async () => {
+    
+      if (document.visibilityState === 'visible' && idPagamento && !expired) {
+        try {
+          const payment = await orderService.getPayment(idPagamento);
+          if (payment.status === 'approved') {
+            toast.success('Pagamento confirmado!');
+            navigate('/order-success', { state: { status: 'success' } });
+          } else if (payment.status === 'rejected') {
+            toast.error('Pagamento rejeitado!');
+            navigate('/order-success', { state: { status: 'rejected' } });
+          } else if (payment.status === 'cancelled') {
+            toast.error('Pagamento cancelado!');
+            navigate('/order-success', { state: { status: 'cancelled' } });
+          }
+        } catch (error) {
+          console.error('Error checking payment status:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [idPagamento, expired, navigate]);
   
 
