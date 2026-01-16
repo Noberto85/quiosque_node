@@ -1,4 +1,4 @@
-import { MenuItemResponse, CategoriaResponse } from "@/types";
+import { MenuItemResponse, CategoriaResponse, MenuItem } from "@/types";
 import { quiosqueStorage } from "./quiosque-storage";
 
 export type QrAuthContext = {
@@ -45,20 +45,18 @@ class MenuItemService {
     });
   }
 
-  async getMenuListItem(quiosqueId: string, categoria: string): Promise<MenuItemResponse> {
-    const params = new URLSearchParams({
-      page: "0",
-      size: "10",
-      orderBy: "nome"
-    });
-
-    if (categoria !== null) {
-      params.append("categoria", categoria);
+  async getMenuListItem(quiosqueId: string, categoria: string | null): Promise<MenuItem[]> {
+   
+    const token = quiosqueStorage.getToken();
+    const params = new URLSearchParams();
+    
+    if (categoria && categoria !== 'null') {
+      params.append('categoria', categoria);
     }
 
+    const queryString = params.toString() ? `?${params.toString()}` : '';
 
-    const token = quiosqueStorage.getToken();
-    return httpJson(`${API_BASE_URL}/api/v1/cardapio/${quiosqueId}?${params.toString()}`, {
+    return httpJson(`${API_BASE_URL}/api/v1/cardapio/${quiosqueId}${queryString}`, {
       method: 'GET',
       headers: {
         accept: '*/*',
@@ -69,9 +67,9 @@ class MenuItemService {
 
    async getCategoria(): Promise<CategoriaResponse[]> {
     
-   
     const token = quiosqueStorage.getToken();
-    return httpJson(`${API_BASE_URL}/api/v1/categoria`, {
+    const quiosqueId = quiosqueStorage.getClaim()?.quiosque_id ?? '';
+    return httpJson(`${API_BASE_URL}/api/v1/categoria/${quiosqueId}`, {
       method: 'GET',
       headers: {
         accept: '*/*',

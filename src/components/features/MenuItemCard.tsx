@@ -5,6 +5,7 @@ import { MenuItem } from '@/types';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { useCart } from '@/stores/cart';
 import { toast } from 'sonner';
+import imgNotFound from '@/assets/img/img-not-found.jpg';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -31,9 +32,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     <Card className="overflow-hidden transition-all hover:shadow-lg animate-fade-in">
       <div className="aspect-video overflow-hidden">
         <img
-          src="https://bebakiro.com/cdn/shop/articles/bog-maca.jpg?v=1652211180"
+          src={'data:image/png;base64,' +item.imagem || imgNotFound}
           alt={item.nome}
           className="h-full w-full object-cover transition-transform hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src = imgNotFound;
+          }}
         />
       </div>
       <CardHeader>

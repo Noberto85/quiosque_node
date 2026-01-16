@@ -26,6 +26,7 @@ export default function Orders() {
   const fetchOrders = async () => {
 
     try {
+      debugger
       const quisoque = quiosqueStorage.getDataQuiosque();
       const order = await orderService.getPaymentStatus(quisoque.cliente, quisoque.quiosqueId);
       setOrders(order);
@@ -40,7 +41,9 @@ export default function Orders() {
 
     const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'primary' }> = {
       pending: { label: 'Pendente', variant: 'secondary' },
+      awaiting_preparation: { label: 'Aguardando Preparação', variant: 'default' },
       preparing: { label: 'Preparando', variant: 'default' },
+      ready: { label: 'Preparando', variant: 'default' },
       delivering: { label: 'Em Entrega', variant: 'default' },
       completed: { label: 'Entregue', variant: 'primary' },
       cancelled: { label: 'Cancelado', variant: 'destructive' },
@@ -60,7 +63,7 @@ export default function Orders() {
   };
 
   const handlePendingPayment = async (orderId: string) => {
-    
+    debugger
     setPaymentLoading(orderId);
     try {
       const response = await orderService.getPayment(orderId);
