@@ -13,14 +13,25 @@ export type QrAuthToken = {
 };
 export type QrAuthClient = {
   telefone: string;
+  password: string;
   quiosqueId: string;
   mesa: number;
+}
+
+export type CreateClienteRequest = {
+  nome: string;
+  telefone: string;
+  password: string;
 }
 
 export type JwtClaimsBase = {
   sub?: string;
   iat?: number;
   exp?: number;
+};
+
+export type ValidateTokenResponse = {
+  ativo: boolean;
 };
 
 export type QrAuthJwtClaims<
@@ -42,10 +53,40 @@ class QrAuthService {
   async getAuthContext(token: string): Promise<QrAuthContext> {
     return httpJson(`${API_BASE_URL}/api/v1/auth?token=${encodeURIComponent(token)}`);
   }
+
   async getClientToken(cliente: QrAuthClient): Promise<QrAuthToken> {
-    return httpJson(`${API_BASE_URL}/api/v1/cliente`, {
+    return httpJson(`${API_BASE_URL}/api/v1/auth/cliente`, {
       method: 'POST',
       body: JSON.stringify(cliente),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async createCliente(cliente: CreateClienteRequest): Promise<any> {
+    return httpJson(`${API_BASE_URL}/api/v1/cliente/create`, {
+      method: 'POST',
+      body: JSON.stringify(cliente),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async sendSmsToken(id: string): Promise<any> {
+    return httpJson(`${API_BASE_URL}/api/v1/auth/sms/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async validateSmsToken(id: string, token: string): Promise<ValidateTokenResponse> {
+    return httpJson(`${API_BASE_URL}/api/v1/auth/sms/validate`, {
+      method: 'POST',
+      body: JSON.stringify({"telefone": id,"token": token }),
       headers: {
         'Content-Type': 'application/json',
       },

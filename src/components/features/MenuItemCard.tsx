@@ -5,7 +5,7 @@ import { MenuItem } from '@/types';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { useCart } from '@/stores/cart';
 import { toast } from 'sonner';
-import imgNotFound from '@/assets/img/img-not-found.jpg';
+import imgNotFound from '@/assets/img/default.png';
 
 interface MenuItemCardProps {
   item: MenuItem;

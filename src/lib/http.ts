@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import { quiosqueStorage } from './quiosque-storage';
 
 function handleErrorStatus(status: number, customMessage?: string) {
-
+debugger
   if (customMessage) {
     toast.error(customMessage);
     if (status === 401) {
@@ -15,7 +15,7 @@ function handleErrorStatus(status: number, customMessage?: string) {
     }
     return;
   }
-
+debugger
   switch (status) {
     case 401:
       toast.error('Sessão expirada. Faça login novamente.');

@@ -4,6 +4,7 @@ import { useCart } from '@/stores/cart';
 import { formatCurrencyBRL } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
+import imgNotFound from '@/assets/img/default.png';
 
 export function CartDrawer() {
   const { items, isOpen, toggleCart, updateQuantity, getTotal } = useCart();
@@ -49,7 +50,7 @@ export function CartDrawer() {
                     className="flex gap-4 rounded-lg border p-3"
                   >
                     <img
-                      src="https://bebakiro.com/cdn/shop/articles/bog-maca.jpg?v=1652211180"
+                       src={'data:image/png;base64,' +item.imagem || imgNotFound}
                       alt={item.nome}
                       className="h-20 w-20 rounded-md object-cover"
                     />
