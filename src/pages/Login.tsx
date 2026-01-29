@@ -39,6 +39,8 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('login');
+
   const { login } = useAuthCliente();
   const navigate = useNavigate();
   const { token } = useParams();
@@ -81,14 +83,17 @@ export default function Login() {
       // Simulate API call
       await qrAuthService.sendSmsToken(onlyDigits(telefone)).then((data) => {
        toast.success('Código enviado para seu telefone!');
-           setShowOtpModal(true);
+        setShowOtpModal(true);
         setLoading(false);
       },(error: any) => {
+        clearFields();
         setLoading(false);
       });
 
     } catch (error: any) {
+      clearFields();
       setLoading(false);
+      clearFields();
     }
   };
 
@@ -100,13 +105,14 @@ export default function Login() {
 
     qrAuthService.validateSmsToken(onlyDigits(telefone), otp)
       .then((data) => {
-        debugger
+        
         if (data.ativo) {
           toast.success('Código verificado com sucesso!');
           setIsOtpVerified(true);
           setShowOtpModal(false);
         } else {
           toast.error('Código inválido!');
+          setOtp('');
         }
       })
       .catch((error: any) => {
@@ -133,9 +139,11 @@ export default function Login() {
     }).then(() => {
        toast.success('Cadastro realizado com sucesso!');
         setLoading(false);
-       
+        setActiveTab('login');
+        clearFields();
     }).catch((error: any) => {
       setLoading(false);
+      clearFields();
     });
 
   };
@@ -154,15 +162,22 @@ debugger
         quiosqueStorage.setClaim(token.token);
         login({ telefone: onlyDigits(telefone) });
         quiosqueStorage.setUpdateDataQuiosque(onlyDigits(telefone));
+        clearFields();
         navigate('/menu');
       },(error: any) => {
-        setTelefone('');
-        setPassword('');
-        setConfirmPassword('');
+        clearFields();
         setLoading(false);
       });
     
   };
+
+  const clearFields = () => {
+    setUsername('');
+    setTelefone('');
+    setPassword('');
+    setConfirmPassword('');
+    setOtp('');
+  }
 
 
   return (
@@ -193,8 +208,7 @@ debugger
             </div>
           </div>}
           {
-
-            <Tabs defaultValue="login">
+            <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="login">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Entrar</TabsTrigger>
                 <TabsTrigger value="register">Cadastrar</TabsTrigger>
