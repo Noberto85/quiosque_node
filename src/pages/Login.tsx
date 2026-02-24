@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { UtensilsCrossed } from 'lucide-react';
 import { qrAuthService } from '@/lib/qr-auth-service';
 import { quiosqueStorage } from '@/lib/quiosque-storage';
-import { formatPhoneBR, onlyDigits } from '@/lib/utils';
+import { formatPhoneBR, onlyDigits, isValidName } from '@/lib/utils';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -125,6 +125,12 @@ export default function Login() {
     
     e.preventDefault();
     setLoading(true);
+
+    if (!isValidName(username)) {
+      toast.error('Informe um nome válido (apenas letras)');
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error('As senhas não coincidem!');
@@ -276,7 +282,12 @@ debugger
                         type="text"
                         placeholder="Seu nome"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^[a-zA-ZÀ-ÖØ-öø-ÿ\s]*$/.test(value)) {
+                            setUsername(value);
+                          }
+                        }}
                         required
                       />
                     </div>
